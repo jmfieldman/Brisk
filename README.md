@@ -50,12 +50,12 @@ Consider the following hypothetical asynchronous API (using Swift 2.2 function s
 ```swift
 // API we're given:
 func findClosestPokemonWithin(within: Double,
-                   completionHandler: (pokemon: Pokemon?, error: NSError?))
+                   completionHandler: (pokemon: Pokemon?, error: NSError?) -> Void)
 
-func countPokeballs(completionHandler: (number: Int?, error: NSError?))
+func countPokeballs(completionHandler: (number: Int?, error: NSError?) -> Void)
 
 func throwPokeballAtPokemon(pokemon: Pokemon,
-                  completionHandler: (success: Bool, error: NSError?))
+                  completionHandler: (success: Bool, error: NSError?) -> Void)
 ```
 
 Let's assume that all of the completion handlers are called on the main thread.  We want to
@@ -63,8 +63,8 @@ make this utility function:
 
 ```swift
 // Utility we want:
-func throwPokeballAtClosestPokemonWithin(within: Double,
-                              completionHandler: (success: Bool, pokemon: Pokemon?, error: NSError?))
+func throwAtClosestPokemonWithin(within: Double,
+                      completionHandler: (success: Bool, pokemon: Pokemon?, error: NSError?) -> Void)
 ```
 
 This function represents a common occurrence of chaining asynchronous functions into a helper utility for a single use case.
@@ -72,8 +72,8 @@ Using only the standard GCD library, your function might look like this:
 
 ```swift
 // The old way...
-func throwPokeballAtClosestPokemonWithin(within: Double,
-                              completionHandler: (success: Bool, pokemon: Pokemon?, error: NSError?)) {
+func throwAtClosestPokemonWithin(within: Double,
+                      completionHandler: (success: Bool, pokemon: Pokemon?, error: NSError?) -> Void) {
     // Step 1
     findClosestPokemonWithin(within) { pokemon, error in
         guard let p = pokemon where error == nil else {
@@ -107,8 +107,8 @@ With Brisk:
 
 ```swift
 // The new way...
-func throwPokeballAtClosestPokemonWithin(within: Double,
-                              completionHandler: (success: Bool, pokemon: Pokemon?, error: NSError?)) {
+func throwAtClosestPokemonWithin(within: Double,
+                      completionHandler: (success: Bool, pokemon: Pokemon?, error: NSError?) -> Void) {
     dispatch_bg_async {
 
         // Step 1
@@ -196,3 +196,68 @@ dispatch_each(myArray, myQueue) { element in
     // Should be used on a concurrent queue.
 }
 ```
+
+# Making Functions Synchronous #
+
+This section refers the idea of taking a naturally asynchronous function and calling
+it synchronously, generally for the purpose of chaining multiple asynchronous
+operations.  This is essentially the same offering of PromiseKit but without
+the needless indentation and scope shuffle that comes with it.
+
+To see a practical use case, refer to the Quick Look example at the beginning of
+this document.
+
+When we talk about an asynchronous function, it must abide by these characteristics:
+
+* Returns ```Void```
+* Takes any number of input parameters
+* Has a single "completion" parameter that takes a function of the form ```(...) -> Void```
+
+These are all examples of suitable asynchronous functions:
+
+```swift
+func getAlbum(named: String, handler: (album: PhotoAlbum?, error: NSError?) -> Void)
+func saveUser(completionHandler: (success: Bool) -> Void)
+func verifyUser(name: String, password: String, completion: (valid: Bool) -> Void)
+
+// Typical use of a function would look like:
+getAlbum("pics") { photo, error in
+    // ...
+}
+```
+
+With Brisk, you can use the <<+, <<~ or <<- operators to call your function in
+a way that blocks the calling thread until your function has called its completion
+handler.
+
+```swift
+// <<+ will execute getAlbum on the main queue
+let (album, error) = <<+{ getAlbum("pics", handler: $0) }
+
+// <<~ will execute saveUser on the global concurrent background queue
+let success        = <<~{ saveUser($0) }
+
+// <<- will execute verifyUser immediately in the current queue (note that the
+//     current thread will wait for the completion handler to be called before
+//     returning the final value.)
+let valid          = <<-{ verifyUser("myname", password: "mypass", completion: $0) }
+
+// You can also specify *any* queue you want.  Here saveUser is called on myQueue.
+let myQueue        = dispatch_queue_create("myQueue", nil)
+let valid          = <<~myQueue ~~~ { saveUser($0) }
+```
+
+In all of the above examples, execution of the outer thread is paused until the completion
+handler ```$0``` is called.  Once ```$0``` is called, the values passed into it are routed back
+to the original assignment operation.
+
+Note that the ```$0``` handler can accommodate any number of parameters (e.g. ```getAlbum```
+above can take ```album``` and ```error```), but it must be assigned to variables that
+create the same tuple.  Also note that it is not possible to extract ```NSError``` parameters
+to transform them into do/try/catch methodology -- you will have to check the ```NSError```
+as part of the returned tuple.
+
+Also note that the outer thread WILL PAUSE until ```$0``` is called.  This means that
+Brisk can only be used for functions that guarantee their completion handlers will
+be called at some deterministic point in the future.  It is not suitable for open-ended
+asynchronous functions like ```NSNotification``` handlers.
