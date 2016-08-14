@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		35057D721D60B930004BBF6D /* BriskRaise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35057D711D60B930004BBF6D /* BriskRaise.swift */; };
 		35057D741D60BCF9004BBF6D /* BriskGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35057D731D60BCF9004BBF6D /* BriskGate.swift */; };
-		35057D7C1D60EFEE004BBF6D /* CHANGELOG.md in Sources */ = {isa = PBXBuildFile; fileRef = 35057D7A1D60EFEE004BBF6D /* CHANGELOG.md */; };
-		35057D7D1D60EFEE004BBF6D /* CONTRIBUTORS.md in Sources */ = {isa = PBXBuildFile; fileRef = 35057D7B1D60EFEE004BBF6D /* CONTRIBUTORS.md */; };
 		356AFC631D5E618700D18479 /* Brisk.h in Headers */ = {isa = PBXBuildFile; fileRef = 356AFC621D5E618700D18479 /* Brisk.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		356AFC6A1D5E618700D18479 /* Brisk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 356AFC5F1D5E618700D18479 /* Brisk.framework */; };
 		356AFC6F1D5E618700D18479 /* BriskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC6E1D5E618700D18479 /* BriskTests.swift */; };
@@ -38,6 +36,7 @@
 		35057D781D60EE81004BBF6D /* Brisk.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Brisk.podspec; sourceTree = SOURCE_ROOT; };
 		35057D7A1D60EFEE004BBF6D /* CHANGELOG.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = SOURCE_ROOT; };
 		35057D7B1D60EFEE004BBF6D /* CONTRIBUTORS.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CONTRIBUTORS.md; sourceTree = SOURCE_ROOT; };
+		35057D7E1D6132A8004BBF6D /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		356AFC5F1D5E618700D18479 /* Brisk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Brisk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		356AFC621D5E618700D18479 /* Brisk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Brisk.h; sourceTree = "<group>"; };
 		356AFC641D5E618700D18479 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -92,6 +91,7 @@
 		356AFC611D5E618700D18479 /* Brisk */ = {
 			isa = PBXGroup;
 			children = (
+				35057D7E1D6132A8004BBF6D /* README.md */,
 				35057D7A1D60EFEE004BBF6D /* CHANGELOG.md */,
 				35057D7B1D60EFEE004BBF6D /* CONTRIBUTORS.md */,
 				35057D781D60EE81004BBF6D /* Brisk.podspec */,
@@ -230,9 +230,7 @@
 				35057D721D60B930004BBF6D /* BriskRaise.swift in Sources */,
 				35057D741D60BCF9004BBF6D /* BriskGate.swift in Sources */,
 				356AFC7E1D5E63C900D18479 /* BriskSync2Async.swift in Sources */,
-				35057D7D1D60EFEE004BBF6D /* CONTRIBUTORS.md in Sources */,
 				356AFC7C1D5E623E00D18479 /* BriskLock.swift in Sources */,
-				35057D7C1D60EFEE004BBF6D /* CHANGELOG.md in Sources */,
 				356AFC7A1D5E61BE00D18479 /* BriskGCD.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
