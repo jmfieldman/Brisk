@@ -10,14 +10,6 @@ import Foundation
 
 
 
-// handler+>(result: nil)
-// handler>>.main.async(result: nil)
-// handler+>.async(result: nil)
-// handler>>.on(queue).async(result: nil)
-// handler~>.async(result: nil)
-// handler+>(result: nil)+>{ i in }
-// handler+>(result: nil)~~queue~>{ i in }
-
 
 // MARK: - Routing Object
 
