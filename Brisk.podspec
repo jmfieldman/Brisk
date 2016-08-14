@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
     s.summary      = "Concise concurrency manipulation for Swift"
 
     s.description  = <<-DESC
-                     Concise concurrency manipulation for Swift
+                     Concise concurrency manipulation for Swift: completionHandler+>>()
                      DESC
 
     s.homepage     = "https://github.com/jmfieldman/Brisk"
