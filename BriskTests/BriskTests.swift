@@ -57,7 +57,7 @@ class BriskTests: XCTestCase {
             spin.done()
             qPassed = onMainEverything()
         }
-        spin.waitUntilFinished()
+        spin.wait()
         
         XCTAssertTrue(qPassed, "on incorrect queue")
     }
@@ -72,7 +72,7 @@ class BriskTests: XCTestCase {
             spin.done()
             qPassed = !onMainQueue()
         }
-        spin.waitUntilFinished()
+        spin.wait()
         
         XCTAssertTrue(qPassed, "on incorrect queue")
     }
@@ -91,7 +91,7 @@ class BriskTests: XCTestCase {
             spin.done()
             qPassed = onMainEverything()
         }
-        spin.waitUntilFinished()
+        spin.wait()
     
         XCTAssertGreaterThan(time2 - time1, 0.25, "diff must be greater than 0.25")
         XCTAssertTrue(qPassed, "on incorrect queue")
@@ -110,7 +110,7 @@ class BriskTests: XCTestCase {
             spin.done()
             qPassed = !onMainQueue()
         }
-        spin.waitUntilFinished()
+        spin.wait()
         
         XCTAssertGreaterThan(time2 - time1, 0.25, "diff must be greater than 0.5")
         XCTAssertTrue(qPassed, "on incorrect queue")
@@ -137,7 +137,7 @@ class BriskTests: XCTestCase {
                 block()
             }
         }
-        spin.waitUntilFinished()
+        spin.wait()
         
         XCTAssertEqual(count, 1, "counted more than once")
         XCTAssertGreaterThan(time2 - time1, 0.25, "diff must be greater than 0.5")
@@ -166,7 +166,7 @@ class BriskTests: XCTestCase {
                 block()
             }
         }
-        spin.waitUntilFinished()
+        spin.wait()
         
         XCTAssertEqual(count, 1, "counted more than once")
         XCTAssertGreaterThan(time2 - time1, 0.25, "diff must be greater than 0.5")
@@ -190,7 +190,7 @@ class BriskTests: XCTestCase {
                 dispatch_source_cancel(t)
             }
         }
-        spin.waitUntilFinished()
+        spin.wait()
         
         XCTAssertEqual(count, 10, "counted incorrect times")
         XCTAssertTrue(qPassed, "on incorrect queue")
@@ -211,7 +211,7 @@ class BriskTests: XCTestCase {
                 dispatch_source_cancel(t)
             }
         }
-        spin.waitUntilFinished()
+        spin.wait()
         
         XCTAssertEqual(count, 10, "counted incorrect times")
         XCTAssertTrue(qPassed, "on incorrect queue")
@@ -232,7 +232,7 @@ class BriskTests: XCTestCase {
                 dispatch_source_cancel(t)
             }
         }
-        spin.waitUntilFinished()
+        spin.wait()
         
         XCTAssertEqual(count, 10, "counted incorrect times")
         XCTAssertTrue(qPassed, "on incorrect queue")
@@ -253,10 +253,150 @@ class BriskTests: XCTestCase {
                 dispatch_source_cancel(t)
             }
         }
-        spin.waitUntilFinished()
+        spin.wait()
         
         XCTAssertEqual(count, 10, "counted incorrect times")
         XCTAssertTrue(qPassed, "on incorrect queue")
     }
-    
+ 
+	
+	// MARK: - Async To Sync
+	
+	func testBasicAsync2SyncConceptBG() {
+		let spin = MainSpin()
+		spin.start()
+		
+		var res: Int = 0
+		
+		dispatch_bg_async {
+			res = <~{ self.asyncTest_CallsOnMainReturns4($0) }
+			spin.done()
+		}
+		
+		spin.wait()
+		
+		XCTAssertEqual(res, 4, "incorrect response")
+	}
+	
+	
+	func testBasicAsync2SyncConceptMain() {
+		let spin = MainSpin()
+		spin.start()
+		
+		var res: Int = 0
+		
+		dispatch_bg_async {
+			res = <+{ self.asyncTest_CallsOnMainReturns4($0) }
+			spin.done()
+		}
+		
+		spin.wait()
+		
+		XCTAssertEqual(res, 4, "incorrect response")
+	}
+	
+	func testBasicAsync2SyncConceptBG2() {
+		let spin = MainSpin()
+		spin.start()
+		
+		var res: Int = 0
+		
+		dispatch_bg_async {
+			res = <~{ self.asyncTest_CallsOnMainReturnsI(3, handler: $0) }
+			spin.done()
+		}
+		
+		spin.wait()
+		
+		XCTAssertEqual(res, 3, "incorrect response")
+	}
+	
+	func testBasicAsync2SyncConceptBG3() {
+		let spin = MainSpin()
+		spin.start()
+		
+		var res: Int = 0
+		var str: String = ""
+		
+		dispatch_bg_async {
+			(res, str) = <~{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
+			spin.done()
+		}
+		
+		spin.wait()
+		
+		XCTAssertEqual(res, 3, "incorrect response int")
+		XCTAssertEqual(str, "3", "incorrect response str")
+	}
+
+	func testBasicAsync2SyncConceptBG3_ImmediateOp() {
+		let spin = MainSpin()
+		spin.start()
+		
+		var res: Int = 0
+		var str: String = ""
+		
+		dispatch_bg_async {
+			(res, str) = <-{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
+			spin.done()
+		}
+		
+		spin.wait()
+		
+		XCTAssertEqual(res, 3, "incorrect response int")
+		XCTAssertEqual(str, "3", "incorrect response str")
+	}
+	
+	
+	func testBasicAsync2SyncConceptBG3_QueueOp() {
+		let spin = MainSpin()
+		spin.start()
+		
+		var res: Int = 0
+		var str: String = ""
+		
+		let myQueue = dispatch_queue_create("test", nil)
+		
+		dispatch_bg_async {
+			(res, str) = <~myQueue ~~ { self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
+			spin.done()
+		}
+		
+		spin.wait()
+		
+		XCTAssertEqual(res, 3, "incorrect response int")
+		XCTAssertEqual(str, "3", "incorrect response str")
+	}
+	
+	// MARK: - Async Functions to Test With
+	
+	func asyncTest_CallsOnMainReturns4(handler: Int -> Void) {
+		dispatch_main_async { handler(4) }
+	}
+	
+	func asyncTest_CallsOnMainReturnsI(i: Int, handler: Int -> Void) {
+		dispatch_main_async { handler(i) }
+	}
+	
+	func asyncTest_CallsOnMainReturnsIforBoth(i: Int, handler: (i: Int, s: String) -> Void) {
+		dispatch_main_async { handler(i: i, s: "\(i)") }
+	}
+	
+	// MARK: - Sync Functions to Test With
+	
+	func syncTest_Return4() -> Int {
+		return 4
+	}
+	
+	func syncTest_ReturnsI(i: Int) -> Int {
+		return i
+	}
+	
+	func syncTest_ReturnsIforBoth(i: Int) -> (i: Int, s: String) {
+		return (i: i, s: "\(i)")
+	}
+	
 }
+
+
+

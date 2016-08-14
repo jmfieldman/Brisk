@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		35057D721D60B930004BBF6D /* BriskRaise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35057D711D60B930004BBF6D /* BriskRaise.swift */; };
+		35057D741D60BCF9004BBF6D /* BriskGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35057D731D60BCF9004BBF6D /* BriskGate.swift */; };
 		356AFC631D5E618700D18479 /* Brisk.h in Headers */ = {isa = PBXBuildFile; fileRef = 356AFC621D5E618700D18479 /* Brisk.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		356AFC6A1D5E618700D18479 /* Brisk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 356AFC5F1D5E618700D18479 /* Brisk.framework */; };
 		356AFC6F1D5E618700D18479 /* BriskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC6E1D5E618700D18479 /* BriskTests.swift */; };
@@ -28,6 +30,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		35057D711D60B930004BBF6D /* BriskRaise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskRaise.swift; sourceTree = "<group>"; };
+		35057D731D60BCF9004BBF6D /* BriskGate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskGate.swift; sourceTree = "<group>"; };
 		356AFC5F1D5E618700D18479 /* Brisk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Brisk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		356AFC621D5E618700D18479 /* Brisk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Brisk.h; sourceTree = "<group>"; };
 		356AFC641D5E618700D18479 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -68,6 +72,7 @@
 				356AFC601D5E618700D18479 /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		356AFC601D5E618700D18479 /* Products */ = {
 			isa = PBXGroup;
@@ -87,6 +92,8 @@
 				356AFC7B1D5E623E00D18479 /* BriskLock.swift */,
 				356AFC7D1D5E63C900D18479 /* BriskSync2Async.swift */,
 				356AFC7F1D5E63D100D18479 /* BriskAsync2Sync.swift */,
+				35057D711D60B930004BBF6D /* BriskRaise.swift */,
+				35057D731D60BCF9004BBF6D /* BriskGate.swift */,
 			);
 			path = Brisk;
 			sourceTree = "<group>";
@@ -210,6 +217,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				356AFC801D5E63D100D18479 /* BriskAsync2Sync.swift in Sources */,
+				35057D721D60B930004BBF6D /* BriskRaise.swift in Sources */,
+				35057D741D60BCF9004BBF6D /* BriskGate.swift in Sources */,
 				356AFC7E1D5E63C900D18479 /* BriskSync2Async.swift in Sources */,
 				356AFC7C1D5E623E00D18479 /* BriskLock.swift in Sources */,
 				356AFC7A1D5E61BE00D18479 /* BriskGCD.swift in Sources */,

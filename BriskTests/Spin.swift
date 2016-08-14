@@ -11,7 +11,7 @@ import Foundation
 protocol Spin : AnyObject {
     func start()
     func done()
-    func waitUntilFinished()
+    func wait()
 }
 
 
@@ -26,7 +26,7 @@ internal class MainSpin : Spin {
         self.finished = true
     }
     
-    func waitUntilFinished() {
+    func wait() {
         while !finished {
             NSRunLoop.currentRunLoop().runMode(NSDefaultRunLoopMode, beforeDate: NSDate(timeIntervalSinceNow: 0.1))
         }
@@ -45,7 +45,7 @@ internal class AsyncSpin : Spin {
         dispatch_group_leave(group)
     }
     
-    func waitUntilFinished() {
+    func wait() {
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
     }
     

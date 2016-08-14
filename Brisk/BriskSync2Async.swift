@@ -96,11 +96,11 @@ public class __BriskRoutingObj<I, O> {
     /// errors.
     public var sync: I -> O {
         guard let opQ = opQueue else {
-            fatalError("You must specify a queue for this function to operate on")
+            brisk_raise("You must specify a queue for this function to operate on")
         }
         
         guard !synchronized(&lock, block: { let o = self.operated; self.operated = false; return o }) else {
-            fatalError("You may not retain or use this routing object in a way that it can be executed more than once.")
+            brisk_raise("You may not retain or use this routing object in a way that it can be executed more than once.")
         }
         
         return { i in
@@ -118,7 +118,7 @@ public class __BriskRoutingObj<I, O> {
     /// Processes the async handler applied to this routing object.
     private func processAsyncHandler(handler: O -> Void) {
         guard let hQ = self.handlerQueue else {
-            fatalError("The handler queue was not specified before routing the async response")
+            brisk_raise("The handler queue was not specified before routing the async response")
         }
         
         dispatch_async(backgroundQueue) {
@@ -149,11 +149,11 @@ public class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
     /// of the wrapped function to yet another async dispatch.
     public var async: I -> Void {
         guard let opQ = opQueue else {
-            fatalError("You must specify a queue for this function to operate on")
+            brisk_raise("You must specify a queue for this function to operate on")
         }
         
         guard !synchronized(&lock, block: { let o = self.operated; self.operated = false; return o }) else {
-            fatalError("You may not retain or use this routing object in a way that it can be executed more than once.")
+            brisk_raise("You may not retain or use this routing object in a way that it can be executed more than once.")
         }
         
         return { i in
@@ -184,11 +184,11 @@ public class __BriskRoutingObjNonVoid<I, O>: __BriskRoutingObj<I, O> {
     /// of the wrapped function to yet another async dispatch.
     public var async: I -> __BriskRoutingObjNonVoid<I, O> {
         guard let opQ = opQueue else {
-            fatalError("You must specify a queue for this function to operate on")
+            brisk_raise("You must specify a queue for this function to operate on")
         }
         
         guard !synchronized(&lock, block: { let o = self.operated; self.operated = false; return o }) else {
-            fatalError("You may not retain or use this routing object in a way that it can be executed more than once.")
+            brisk_raise("You may not retain or use this routing object in a way that it can be executed more than once.")
         }
         
         return { i in
