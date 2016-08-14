@@ -326,7 +326,7 @@ public func ~~<I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: dispatch_queue_t)
 /// to a completion handler that is executed on the global concurrent background queue.
 ///
 /// -e.g.: ```handler~>(param: nil) ~> { result in ... }```
-public func ~><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: (O -> Void)) {
+public func ~><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: O -> Void) {
     if lhs.handlerQueue == nil { lhs.handlerQueue = backgroundQueue }
     lhs.processAsyncHandler(rhs)
 }
@@ -335,7 +335,7 @@ public func ~><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: (O -> Void)) {
 /// to a completion handler that is executed on the main queue.
 ///
 /// -e.g.: ```handler~>(param: nil) +> { result in ... }```
-public func +><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: (O -> Void)) {
+public func +><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: O -> Void) {
     lhs.handlerQueue = mainQueue
     lhs.processAsyncHandler(rhs)
 }
