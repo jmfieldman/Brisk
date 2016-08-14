@@ -91,6 +91,13 @@ public class __BriskRoutingObj<I, O> {
             brisk_raise("You must specify a queue for this function to operate on")
         }
         
+        // If we're synchronous on the main thread already, just run the function immediately.
+        if opQ === mainQueue && NSThread.currentThread().isMainThread {
+            return { i in
+                return self.wrappedFunction(i)
+            }
+        }
+                
         guard !synchronized(&lock, block: { let o = self.operated; self.operated = false; return o }) else {
             brisk_raise("You may not retain or use this routing object in a way that it can be executed more than once.")
         }
