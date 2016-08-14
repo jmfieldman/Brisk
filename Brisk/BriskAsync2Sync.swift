@@ -8,22 +8,22 @@
 
 import Foundation
 
-// let .. = <-{ func(i, handler: $0) }              call func on current queue
-// let .. = <~{ func(i, handler: $0) }              call func on bg queue
-// let .. = <+{ func(i, handler: $0) }              call func on main queue
-// let .. = <~myQueue ~~ { func(i, handler: $0) }   call func on specified queue
+// let .. = <<-{ func(i, handler: $0) }              call func on current queue
+// let .. = <<~{ func(i, handler: $0) }              call func on bg queue
+// let .. = <<+{ func(i, handler: $0) }              call func on main queue
+// let .. = <<~myQueue ~~~ { func(i, handler: $0) }   call func on specified queue
 
-prefix operator <- {}
-prefix operator <~ {}
-prefix operator <+ {}
-infix  operator ~~ { precedence 95 }
+prefix operator <<- {}
+prefix operator <<~ {}
+prefix operator <<+ {}
+infix  operator ~~~ { precedence 95 }
 
 
 /// Returns the queue this prefix is applied to.  This is used to prettify the
 /// syntax:
 ///
-/// - e.g.: let x = <~myQueue ~~ { func(i, handler: $0) }
-@inline(__always) public prefix func <~(q: dispatch_queue_t) -> dispatch_queue_t {
+/// - e.g.: let x = <<~myQueue ~~~ { func(i, handler: $0) }
+@inline(__always) public prefix func <<~(q: dispatch_queue_t) -> dispatch_queue_t {
     return q
 }
 
@@ -31,8 +31,8 @@ infix  operator ~~ { precedence 95 }
 /// and waits for it to complete.  Returns the result of the callback handler that
 /// $0 was attached to.
 ///
-/// - e.g.: ```let x = <-{ func(i, callback: $0)``` }
-public prefix func <-<O>(@noescape operation: (callbackHandler: (param: O) -> ()) -> ()) -> O {
+/// - e.g.: ```let x = <<-{ func(i, callback: $0)``` }
+public prefix func <<-<O>(@noescape operation: (callbackHandler: (param: O) -> ()) -> ()) -> O {
     
     // Our gating mechanism
     let gate = BriskGate()
@@ -84,8 +84,8 @@ public prefix func <-<O>(@noescape operation: (callbackHandler: (param: O) -> ()
 /// and waits for it to complete.  Returns the result of the callback handler that
 /// $0 was attached to.
 ///
-/// - e.g.: ```let x = <~{ func(i, callback: $0)``` }
-public prefix func <~<O>(operation: (callbackHandler: (param: O) -> ()) -> ()) -> O {
+/// - e.g.: ```let x = <<~{ func(i, callback: $0)``` }
+public prefix func <<~<O>(operation: (callbackHandler: (param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(operation, queue: backgroundQueue)
 }
 
@@ -94,8 +94,8 @@ public prefix func <~<O>(operation: (callbackHandler: (param: O) -> ()) -> ()) -
 /// and waits for it to complete.  Returns the result of the callback handler that
 /// $0 was attached to.
 ///
-/// - e.g.: ```let x = <+{ func(i, callback: $0)``` }
-public prefix func <+<O>(operation: (callbackHandler: (param: O) -> ()) -> ()) -> O {
+/// - e.g.: ```let x = <<+{ func(i, callback: $0)``` }
+public prefix func <<+<O>(operation: (callbackHandler: (param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(operation, queue: mainQueue)
 }
 
@@ -104,8 +104,8 @@ public prefix func <+<O>(operation: (callbackHandler: (param: O) -> ()) -> ()) -
 /// and waits for it to complete.  Returns the result of the callback handler that
 /// $0 was attached to.
 ///
-/// - e.g.: ```let x = <~myQueue ~~ { func(i, callback: $0)``` }
-public func ~~<O>(lhs: dispatch_queue_t, rhs: (callbackHandler: (param: O) -> ()) -> ()) -> O {
+/// - e.g.: ```let x = <<~myQueue ~~~ { func(i, callback: $0)``` }
+public func ~~~<O>(lhs: dispatch_queue_t, rhs: (callbackHandler: (param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(rhs, queue: lhs)
 }
 

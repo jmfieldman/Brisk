@@ -262,6 +262,7 @@ class BriskTests: XCTestCase {
 	
 	// MARK: - Async To Sync
 	
+    
 	func testBasicAsync2SyncConceptBG() {
 		let spin = MainSpin()
 		spin.start()
@@ -269,7 +270,7 @@ class BriskTests: XCTestCase {
 		var res: Int = 0
 		
 		dispatch_bg_async {
-			res = <~{ self.asyncTest_CallsOnMainReturns4($0) }
+			res = <<~{ self.asyncTest_CallsOnMainReturns4($0) }
 			spin.done()
 		}
 		
@@ -286,7 +287,7 @@ class BriskTests: XCTestCase {
 		var res: Int = 0
 		
 		dispatch_bg_async {
-			res = <+{ self.asyncTest_CallsOnMainReturns4($0) }
+			res = <<+{ self.asyncTest_CallsOnMainReturns4($0) }
 			spin.done()
 		}
 		
@@ -302,7 +303,7 @@ class BriskTests: XCTestCase {
 		var res: Int = 0
 		
 		dispatch_bg_async {
-			res = <~{ self.asyncTest_CallsOnMainReturnsI(3, handler: $0) }
+			res = <<~{ self.asyncTest_CallsOnMainReturnsI(3, handler: $0) }
 			spin.done()
 		}
 		
@@ -319,7 +320,7 @@ class BriskTests: XCTestCase {
 		var str: String = ""
 		
 		dispatch_bg_async {
-			(res, str) = <~{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
+			(res, str) = <<~{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
 			spin.done()
 		}
 		
@@ -337,7 +338,7 @@ class BriskTests: XCTestCase {
 		var str: String = ""
 		
 		dispatch_bg_async {
-			(res, str) = <-{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
+			(res, str) = <<-{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
 			spin.done()
 		}
 		
@@ -358,7 +359,7 @@ class BriskTests: XCTestCase {
 		let myQueue = dispatch_queue_create("test", nil)
 		
 		dispatch_bg_async {
-			(res, str) = <~myQueue ~~ { self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
+			(res, str) = <<~myQueue ~~~ { self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
 			spin.done()
 		}
 		
@@ -367,6 +368,54 @@ class BriskTests: XCTestCase {
 		XCTAssertEqual(res, 3, "incorrect response int")
 		XCTAssertEqual(str, "3", "incorrect response str")
 	}
+    
+    
+    func testBasicAsync2SyncConceptONMain() {
+        let (res, str) = <<-{ asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
+        
+        XCTAssertEqual(res, 3, "incorrect response int")
+        XCTAssertEqual(str, "3", "incorrect response str")
+    }
+    
+    func testBasicAsync2SyncConceptONMain2() {
+        let (res, str) = <<+{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
+        
+        XCTAssertEqual(res, 3, "incorrect response int")
+        XCTAssertEqual(str, "3", "incorrect response str")
+    }
+    
+    func testBasicAsync2SyncConceptONMain3() {
+        let (res, str) = <<~{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
+        
+        XCTAssertEqual(res, 3, "incorrect response int")
+        XCTAssertEqual(str, "3", "incorrect response str")
+    }
+    
+    
+    // MARK: - Sync To Async
+    
+    func makeSureThisCompiles() {
+        
+        syncTest_Return4+>>() +>> { i in }
+        syncTest_ReturnsI~>>.async(3) +>> { i in }
+        syncTest_Return4~>>()
+        syncTest_Return4~>>() ~>> { i in }
+        syncTest_ReturnsI+>>(4)
+        (syncTest_ReturnsI+>>(4)) ~>> { (i: Int) in }
+        syncTest_ReturnsI+>>(4) ~>> { (i: Int) in }
+        syncTest_ReturnsI~>>(4)
+        syncTest_ReturnsI~>>(4) +>> { i in }
+        
+        let q = dispatch_queue_create("dkjfd", nil)
+        
+        syncTest_ReturnsI +>> (4) ~>> q ~>> { i in }
+        syncTest_ReturnsI +>> (4) ~>> q ~>> { i in }
+        syncTest_ReturnsI +>> (4) ~>> { i in }
+        syncTest_ReturnsVoid ~>> ()
+        syncTest_ReturnsVoidParam ~>> q ~>> (3)
+    }
+    
+    
 	
 	// MARK: - Async Functions to Test With
 	
@@ -384,6 +433,14 @@ class BriskTests: XCTestCase {
 	
 	// MARK: - Sync Functions to Test With
 	
+    func syncTest_ReturnsVoid() {
+        
+    }
+    
+    func syncTest_ReturnsVoidParam(i: Int) {
+        
+    }
+    
 	func syncTest_Return4() -> Int {
 		return 4
 	}

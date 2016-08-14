@@ -206,136 +206,175 @@ public class __BriskRoutingObjNonVoid<I, O>: __BriskRoutingObj<I, O> {
 
 // MARK: - Operators
 
-postfix operator >> {}
-postfix operator ~> {}
-postfix operator +> {}
+postfix operator ->> {}
+postfix operator ~>> {}
+postfix operator +>> {}
 
 
-/// The ```>>``` postfix operator generates an internal routing object that
+/// The ```->>``` postfix operator generates an internal routing object that
 /// requires you to specify the operation queue.  An example of this
 /// would be:
 ///
-/// ```handler>>.main.async(result: nil)```
-@inline(__always) public postfix func >><I>(function: I -> Void) -> __BriskRoutingObjVoid<I> {
+/// ```handler->>.main.async(result: nil)```
+@inline(__always) public postfix func ->><I>(function: I -> Void) -> __BriskRoutingObjVoid<I> {
     return __BriskRoutingObjVoid(function: function)
 }
 
-/// The ```>>``` postfix operator generates an internal routing object that
+/// The ```->>``` postfix operator generates an internal routing object that
 /// requires you to specify the operation queue.  An example of this
 /// would be:
 ///
-/// ```handler>>.main.async(result: nil)```
-@inline(__always) public postfix func >><I, O>(function: I -> O) -> __BriskRoutingObjNonVoid<I,O> {
+/// ```handler->>.main.async(result: nil)```
+@inline(__always) public postfix func ->><I, O>(function: I -> O) -> __BriskRoutingObjNonVoid<I,O> {
     return __BriskRoutingObjNonVoid(function: function)
 }
 
 
 
-/// The ```~>``` postfix operator generates an internal routing object that
+/// The ```~>>``` postfix operator generates an internal routing object that
 /// defaults to the concurrent background queue.  An example of this
 /// would be:
 ///
-/// ```handler~>.async(result: nil)```
-@inline(__always) public postfix func ~><I>(function: I -> Void) -> __BriskRoutingObjVoid<I> {
+/// ```handler~>>.async(result: nil)```
+@inline(__always) public postfix func ~>><I>(function: I -> Void) -> __BriskRoutingObjVoid<I> {
     return __BriskRoutingObjVoid(function: function, defaultOpQueue: backgroundQueue)
 }
 
-/// The ```~>``` postfix operator generates an internal routing object that
+/// The ```~>>``` postfix operator generates an internal routing object that
 /// defaults to the concurrent background queue.  An example of this
 /// would be:
 ///
-/// ```handler~>.async(result: nil)```
-@inline(__always) public postfix func ~><I, O>(function: I -> O) -> __BriskRoutingObjNonVoid<I,O> {
+/// ```handler~>>.async(result: nil)```
+@inline(__always) public postfix func ~>><I, O>(function: I -> O) -> __BriskRoutingObjNonVoid<I,O> {
     return __BriskRoutingObjNonVoid(function: function, defaultOpQueue: backgroundQueue)
 }
 
 
 
-/// The ```+>``` postfix operator generates an internal routing object that
+/// The ```+>>``` postfix operator generates an internal routing object that
 /// defaults to the main queue.  An example of this would be:
 ///
-/// ```handler+>.async(result: nil)```
-@inline(__always) public postfix func +><I>(function: I -> Void) -> __BriskRoutingObjVoid<I> {
+/// ```handler+>>.async(result: nil)```
+@inline(__always) public postfix func +>><I>(function: I -> Void) -> __BriskRoutingObjVoid<I> {
     return __BriskRoutingObjVoid(function: function, defaultOpQueue: mainQueue)
 }
 
-/// The ```+>``` postfix operator generates an internal routing object that
+/// The ```+>>``` postfix operator generates an internal routing object that
 /// defaults to the main queue.  An example of this would be:
 ///
-/// ```handler+>.async(result: nil)```
-@inline(__always) public postfix func +><I, O>(function: I -> O) -> __BriskRoutingObjNonVoid<I,O> {
+/// ```handler+>>.async(result: nil)```
+@inline(__always) public postfix func +>><I, O>(function: I -> O) -> __BriskRoutingObjNonVoid<I,O> {
     return __BriskRoutingObjNonVoid(function: function, defaultOpQueue: mainQueue)
 }
 
 
 
-infix operator ~> { associativity left precedence 140 }
-infix operator +> { associativity left precedence 140 }
-infix operator ~~ { associativity left precedence 140 }
+infix operator +>> { associativity left precedence 140 }
+infix operator ~>> { associativity left precedence 140 }
 
 
-/// The ```~>``` infix operator allows for shorthand creation of a routing object
+/// The ```~>>``` infix operator allows for shorthand creation of a routing object
 /// that operates asynchronously on the global concurrent background queue.
 ///
-/// - e.g.: ```handler~>(param: nil)```
-public func ~><I>(lhs: I -> Void, rhs: I) -> Void {
+/// - e.g.: ```handler~>>(param: nil)```
+public func ~>><I>(lhs: I -> Void, rhs: I) -> Void {
     return __BriskRoutingObjVoid(function: lhs, defaultOpQueue: backgroundQueue).async(rhs)
 }
 
-/// The ```~>``` infix operator allows for shorthand creation of a routing object
+/// The ```~>>``` infix operator allows for shorthand creation of a routing object
 /// that operates asynchronously on the global concurrent background queue.
 ///
-/// - e.g.: ```handler~>(param: nil)```
-public func ~><I, O>(lhs: I -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
+/// - e.g.: ```handler~>>(param: nil)```
+public func ~>><I, O>(lhs: I -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
     return __BriskRoutingObjNonVoid(function: lhs, defaultOpQueue: backgroundQueue).async(rhs)
 }
 
+/// The ```~>>``` infix operator allows for shorthand execution of the wrapped function
+/// on its defined operation queue.
+///
+/// - e.g.: ```handler~>>(param: nil)```
+public func ~>><I>(lhs: __BriskRoutingObjVoid<I>, rhs: I) -> Void {
+    return lhs.async(rhs)
+}
+
+/// The ```~>>``` infix operator allows for shorthand execution of the wrapped function
+/// on its defined operation queue.
+///
+/// - e.g.: ```handler~>>(param: nil)```
+public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
+    return lhs.async(rhs)
+}
 
 
 
-/// The ```+>``` infix operator allows for shorthand creation of a routing object
+
+
+/// The ```+>>``` infix operator allows for shorthand creation of a routing object
 /// that operates asynchronously on the main queue.
 ///
-/// - e.g.: ```handler+>(param: nil)```
-public func +><I>(lhs: I -> Void, rhs: I) -> Void {
+/// - e.g.: ```handler+>>(param: nil)```
+public func +>><I>(lhs: I -> Void, rhs: I) -> Void {
     return __BriskRoutingObjVoid(function: lhs, defaultOpQueue: mainQueue).async(rhs)
 }
 
-/// The ```+>``` infix operator allows for shorthand creation of a routing object
+/// The ```+>>``` infix operator allows for shorthand creation of a routing object
 /// that operates asynchronously on the main queue.
 ///
-/// - e.g.: ```handler+>(param: nil)```
-public func +><I, O>(lhs: I -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
+/// - e.g.: ```handler+>>(param: nil)```
+public func +>><I, O>(lhs: I -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
     return __BriskRoutingObjNonVoid(function: lhs, defaultOpQueue: mainQueue).async(rhs)
 }
 
 
 
 
-/// The special ```~~``` infix operator allows you to specify the queue that the
-/// completion handler will be called with the result of your asynchronous operation.
+/// The special ```~>>``` infix operator between a function and a queue creates a
+/// routing object that will call its operation on that queue.
 ///
-/// - e.g.: ```handler~>(param: nil) ~~ myQueue ~> { result in ... }```
-public func ~~<I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: dispatch_queue_t) -> __BriskRoutingObjNonVoid<I, O> {
+/// - e.g.: ```handler +>> (param: nil) ~>> myQueue ~>> { result in ... }```
+/// - e.g.: ```handler ~>> myQueue ~>> (param: nil) ~>> myOtherQueue ~>> { result in ... }```
+public func ~>><I>(lhs: I -> Void, rhs: dispatch_queue_t) -> __BriskRoutingObjVoid<I> {
+    return __BriskRoutingObjVoid(function: lhs, defaultOpQueue: rhs)
+}
+
+/// The special ```~>>``` infix operator between a function and a queue creates a
+/// routing object that will call its operation on that queue.
+///
+/// - e.g.: ```handler +>> (param: nil) ~>> myQueue ~>> { result in ... }```
+/// - e.g.: ```handler ~>> myQueue ~>> (param: nil) ~>> myOtherQueue ~>> { result in ... }```
+public func ~>><I, O>(lhs: I -> O, rhs: dispatch_queue_t) -> __BriskRoutingObjNonVoid<I, O> {
+    return __BriskRoutingObjNonVoid(function: lhs, defaultOpQueue: rhs)
+}
+
+/// The special ```~>>``` infix operator allows you to specify the queues for the
+/// routing operations.  This sets the initial operation queue if it hasn't already
+/// been defined by on().  If the initial operation queue has already been defined,
+/// this sets the response handler queue.
+///
+/// - e.g.: ```handler +>> (param: nil) ~>> myQueue ~>> { result in ... }```
+/// - e.g.: ```handler ~>> myQueue ~>> (param: nil) ~>> myOtherQueue ~>> { result in ... }```
+public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: dispatch_queue_t) -> __BriskRoutingObjNonVoid<I, O> {
     lhs.handlerQueue = rhs
     return lhs
 }
 
 
-/// The ```~>``` infix operator routes the result of your asynchronous operation
-/// to a completion handler that is executed on the global concurrent background queue.
+
+/// The ```~>>``` infix operator routes the result of your asynchronous operation
+/// to a completion handler that is executed on the predefined queue, or the global
+/// concurrent background queue by default if none was specified.
 ///
-/// -e.g.: ```handler~>(param: nil) ~> { result in ... }```
-public func ~><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: O -> Void) {
+/// -e.g.: ```handler~>>(param: nil) ~>> { result in ... }```
+public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: O -> Void) {
     if lhs.handlerQueue == nil { lhs.handlerQueue = backgroundQueue }
     lhs.processAsyncHandler(rhs)
 }
 
-/// The ```+>``` infix operator routes the result of your asynchronous operation
+/// The ```+>>``` infix operator routes the result of your asynchronous operation
 /// to a completion handler that is executed on the main queue.
 ///
-/// -e.g.: ```handler~>(param: nil) +> { result in ... }```
-public func +><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: O -> Void) {
+/// -e.g.: ```handler~>>(param: nil) +>> { result in ... }```
+public func +>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: O -> Void) {
     lhs.handlerQueue = mainQueue
     lhs.processAsyncHandler(rhs)
 }
