@@ -10,7 +10,7 @@ Brisk offers two distinct but complimentary functions:
 
 These might be best explained by code example.
 
-#### Quick Look: Extending the GCD Library for Simplicity ####
+### Quick Look: Extending the GCD Library for Simplicity ###
 
 Consider the existing methods required from the standard GCD library:
 
@@ -43,7 +43,7 @@ dispatch_main_after(2.0) {
 
 Brisk offers this type of simplification for many standard GCD use cases.
 
-#### Quick Look: Concurrency Swiveling ####
+### Quick Look: Concurrency Swiveling ###
 
 Consider the following hypothetical asynchronous API (using Swift 2.2 function syntax):
 
@@ -133,3 +133,66 @@ func throwPokeballAtClosestPokemonWithin(within: Double,
 The main advantage with Brisk is that the asynchronous functions can be coded using a seemingly-synchronous flow.
 The asynchronous nature of the methods is hidden behind the custom operators.  *Unlike PromiseKit, all return values
 remain in scope as well*.
+
+# Detailed GCD Additions #
+
+The following code examples show the GCD additions provided by Brisk.  These are
+fairly self-documenting.  More information about each method can be found in its comment section.
+
+```swift
+dispatch_main_async {
+    // Block runs on the main queue
+}
+
+dispatch_main_sync {
+    // Block runs on the main queue; this function does not return until
+    // the block completes.
+}
+
+dispatch_bg_async {
+    // Block runs on the global concurrent background queue
+}
+
+dispatch_async("myNewQueue") {
+    // Block runs on a brisk-created serial queue with the specified string ID.
+    // Calling this function multiple times with the same string will reuse the
+    // named queue.  Useful for dynamic throw-away serial queues.
+}
+
+dispatch_main_after(2.0) {
+dispatch_after(2.0, myQueue) {
+    // Block is called on specified queue after specified number of seconds using
+    // a loose leeway (+/- 0.1 seconds).
+}
+
+dispatch_main_after_exactly(2.0) {
+dispatch_after_exactly(2.0, myQueue) {
+    // Block is called on specified queue after specified number of seconds using
+    // as tight a timer leeway as possible.  Useful for animation timing but
+    // uses more battery power.
+}
+
+dispatch_main_every(2.0) { timer in
+dispatch_every(2.0, myQueue) { timer in
+dispatch_main_every_exact(2.0) { timer in
+dispatch_every_exact(2.0, myQueue) { timer in
+    // Block is run on specified thread every N seconds.
+    // Stop the timer with:
+    dispatch_source_cancel(timer)
+}
+
+dispatch_main_once_after(2.0, "myOperationId") {
+dispatch_once_after(2.0, myQueue, "myOperationId") {
+    // Block runs after specified time on specified queue.  The block is
+    // only executed ONCE -- repeat calls to this function with the same
+    // operation ID will reset its internal timer instead of calling the
+    // block again.  Useful for calling a completion block after several
+    // disparate asynchronous methods (e.g. saving the database to disk
+    // after downloading multiple records on separate threads.)
+}
+
+dispatch_each(myArray, myQueue) { element in
+    // Each element in the array has this block called with it as a parameter.
+    // Should be used on a concurrent queue.
+}
+```
