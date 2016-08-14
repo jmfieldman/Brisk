@@ -598,6 +598,11 @@ class BriskTests: XCTestCase {
         syncTest_ReturnsI +>> (4) ~>> { i in }
         syncTest_ReturnsVoid ~>> ()
         syncTest_ReturnsVoidParam ~>> q ~>> (3)
+        
+        var s: Int = 0;
+        { s = 3 } +>> ();
+        { s = 3 }+>>.sync()
+        let _ = s
     }
     
     

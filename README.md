@@ -134,7 +134,7 @@ The main advantage with Brisk is that the asynchronous functions can be coded us
 The asynchronous nature of the methods is hidden behind the custom operators.  *Unlike PromiseKit, all return values
 remain in scope as well*.
 
-# Detailed GCD Additions #
+## Detailed GCD Additions ##
 
 The following code examples show the GCD additions provided by Brisk.  These are
 fairly self-documenting.  More information about each method can be found in its comment section.
@@ -197,7 +197,7 @@ dispatch_each(myArray, myQueue) { element in
 }
 ```
 
-# Making Functions Synchronous #
+## Calling Asynchronous Functions Synchronously ##
 
 This section refers the idea of taking a naturally asynchronous function and calling
 it synchronously, generally for the purpose of chaining multiple asynchronous
@@ -226,7 +226,7 @@ getAlbum("pics") { photo, error in
 }
 ```
 
-With Brisk, you can use the <<+, <<~ or <<- operators to call your function in
+With Brisk, you can use the ```<<+```, ```<<~``` or ```<<-``` operators to call your function in
 a way that blocks the calling thread until your function has called its completion
 handler.
 
@@ -261,3 +261,135 @@ Also note that the outer thread WILL PAUSE until ```$0``` is called.  This means
 Brisk can only be used for functions that guarantee their completion handlers will
 be called at some deterministic point in the future.  It is not suitable for open-ended
 asynchronous functions like ```NSNotification``` handlers.
+
+## Calling Synchronous Functions Asynchronously ##
+
+There are many reasons to call synchronous functions asynchronously.  It's happening any
+time you see this pattern:
+
+```swift
+dispatch_async(someQueue) {
+    // Do something
+}
+```
+
+The stylistic problem with the pattern above is when ```"// Do something"``` is a single function.
+You're burning three lines and an indentation scope just to route a single function call to
+another queue.
+
+An example of this is in the Quick Look example from the beginning of the documentation.  This
+routing must take place each time the completion handler is called on the main queue.  It
+has a negative impact on the readability of the overall function, since the actual function
+name gets buried in the scope of the dispatch.  Wouldn't it be nice if that could be
+accomplished in one line, with the function name first?
+
+The ```~>>``` and ```+>>``` operators introduced in Brisk can be thought of as the
+synchronous->asynchronous translators.  The main difference between the two is that
+the ```+>>``` operator dispatches to the main queue, while the ```~>>``` operator
+allows you to specify the queue (or use the concurrent background queue by default).
+
+For the examples below, consider the following normal synchronous functions:
+
+```swift
+func syncReturnsVoid() { }
+func syncReturnsParam(p: Int) -> Int { return p+1 }
+func syncReturnsParamTuple(p: Int) -> (Int, String) { return (p+1, "\(p+1)") }
+```
+
+Use the infix operator between a function and its parameters to quickly dispatch a synchronous function on
+another queue.
+
+```swift
+dispatch_async(someQueue) {
+
+    // syncReturnsVoid() is called on the main thread
+    syncReturnsVoid +>> ()
+
+    // syncReturnsParam(p: 3) is called on the main thread
+    // Note in this case the return value is ignored!
+    syncReturnsParam +>> (p: 3)
+
+    // syncReturnsVoid() is called on the global concurrent background queue
+    syncReturnsVoid ~>> ()
+
+    // syncReturnsParam(p: 3) is called on the global concurrent background queue
+    // Note in this case the return value is ignored!
+    syncReturnsParam ~>> (p: 3)
+
+    let otherQueue = dispatch_queue_create("otherQueue", nil)
+
+    // syncReturnsVoid() is called on otherQueue
+    syncReturnsVoid ~>> otherQueue ~>> ()
+
+    // syncReturnsParam(p: 3) is called on otherQueue
+    // Note in this case the return value is ignored!
+    syncReturnsParam ~>> otherQueue ~>> (p: 3)
+}
+```
+
+You can also use the operators in a postfix fashion for a more functional syntax:
+
+```swift
+dispatch_async(someQueue) {    
+    let otherQueue = dispatch_queue_create("otherQueue", nil)
+
+    // The following three lines are equivalent
+    syncReturnsParam~>>.on(otherQueue).async(p: 3)
+    syncReturnsParam~>>otherQueue~>>(p: 3)
+    syncReturnsParam ~>> otherQueue ~>> (p: 3)
+}
+```
+
+In all of the above examples, the return values were ignored.  This is generally fine
+for the synchronous functions that return ```Void``` (like most completion handlers).
+Because the functions are called asynchronously, you have to process the return
+values asynchronously as well:
+
+```swift
+dispatch_async(someQueue) {
+
+    // syncReturnsParam(p: 3) is called on the main thread
+    // Its response is also handled on the main thread
+    syncReturnsParam +>> (p: 3) +>> { i in print(i) } // prints 4
+
+    // syncReturnsParam(p: 3) is called on the main thread
+    // Its response is handled on the global concurrent background queue
+    // Note the positions and difference between +>> and ~>>
+    syncReturnsParam +>> (p: 3) ~>> { i in print(i) } // prints 4
+
+    // syncReturnsParamTuple(p: 3) is called on the global concurrent background queue
+    // Its response is handled on an instantiated queue
+    syncReturnsParamTuple ~>> (p: 3) ~>> otherQueue ~>> { iInt, iStr in print(pInt) }
+
+    // Using the more functional style
+    syncReturnsParam~>>.on(otherQueue).async(p: 3) +>> { i in print(i) }    
+}
+```
+
+### Routing a Block Synchronously to Another Queue ###
+
+Using the functional syntax, you can route a function (or any block) to another
+thread while the calling thread waits.  This can be very useful for cases where
+we want to update UI, or some other main-thread-dependent resource from a background
+thread.
+
+```swift
+dispatch_async(someQueue) {
+    // In the middle of some background code we want to change the UI
+
+    // This does it asynchronously (both are the same):
+    { self.label.hidden = true }+>>();
+    { self.label.hidden = true }+>>.async();
+
+    // This does it synchronously (call waits until change is made)
+    { self.label.hidden = true }+>>.sync();
+
+    // The above statement is equivalent to
+    dispatch_main_sync {
+        self.label.hidden = true
+    }
+}
+```
+
+*Note that because of the Swift compiler, you may need to include a semicolon on the line
+before you create a statement with a block as the left-most expression.*
