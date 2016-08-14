@@ -394,6 +394,174 @@ class BriskTests: XCTestCase {
     
     // MARK: - Sync To Async
     
+    func testSync2Async_MainA() {
+        let spin = MainSpin()
+        spin.start()
+        var r: Int = 0
+        var inMain = false
+        
+        syncTest_Return4+>>() +>> { inMain = NSThread.currentThread().isMainThread; r = $0; spin.done() }
+        spin.wait()
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(inMain, true, "incorrect queue")
+    }
+    
+    func testSync2Async_MainB() {
+        let spin = MainSpin()
+        spin.start()
+        var r: Int = 0
+        var inMain = false
+        
+        syncTest_Return4 +>> () +>> { inMain = NSThread.currentThread().isMainThread; r = $0; spin.done() }
+        spin.wait()
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(inMain, true, "incorrect queue")
+    }
+    
+    func testSync2Async_MainC() {
+        let spin = MainSpin()
+        spin.start()
+        var r: Int = 0
+        var inMain = false
+        
+        syncTest_ReturnsI+>>.async(4) +>> { inMain = NSThread.currentThread().isMainThread; r = $0; spin.done() }
+        spin.wait()
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(inMain, true, "incorrect queue")
+    }
+    
+    func testSync2Async_MainD() {
+        let spin = MainSpin()
+        spin.start()
+        var r: Int = 0
+        var inMain = false
+        
+        syncTest_ReturnsI +>> (4) +>> { inMain = NSThread.currentThread().isMainThread; r = $0; spin.done() }
+        spin.wait()
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(inMain, true, "incorrect queue")
+    }
+    
+    func testSync2Async_MainE() {
+        let spin = MainSpin()
+        spin.start()
+        var r: Int = 0
+        var inMain = false
+        
+        syncTest_ReturnsI ~>> (4) +>> { inMain = NSThread.currentThread().isMainThread; r = $0; spin.done() }
+        spin.wait()
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(inMain, true, "incorrect queue")
+    }
+    
+    func testSync2Async_MainBothA() {
+        let spin = MainSpin()
+        spin.start()
+        var r: Int = 0
+        var s: String = ""
+        var inMain = false
+        
+        syncTest_ReturnsIforBoth ~>> (4) +>> { inMain = onMainQueue(); (r, s) = $0; spin.done() }
+        spin.wait()
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(s, "4", "incorrect response str")
+        XCTAssertEqual(inMain, true, "incorrect queue")
+    }
+    
+    func testSync2Async_MainBothB() {
+        let spin = MainSpin()
+        spin.start()
+        var r: Int = 0
+        var s: String = ""
+        var inMain = false
+        
+        syncTest_ReturnsIforBoth ~>> (4) ~>> dispatch_get_main_queue() ~>> { inMain = onMainQueue(); (r, s) = $0; spin.done() }
+        spin.wait()
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(s, "4", "incorrect response str")
+        XCTAssertEqual(inMain, true, "incorrect queue")
+    }
+    
+    func testSync2Async_BGBothB() {
+        let spin = MainSpin()
+        spin.start()
+        var r: Int = 0
+        var s: String = ""
+        var inMain = false
+        
+        syncTest_ReturnsIforBoth ~>> (4) ~>> dispatch_queue_create("", nil) ~>> { inMain = onMainQueue(); (r, s) = $0; spin.done() }
+        spin.wait()
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(s, "4", "incorrect response str")
+        XCTAssertEqual(inMain, false, "incorrect queue")
+    }
+    
+    func testSync2Async_MainRetA() {
+        var r: Int = 0
+        var s: String = ""
+        
+        (r, s) = syncTest_ReturnsIforBoth~>>.sync(4)
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(s, "4", "incorrect response str")
+    }
+    
+    func testSync2Async_MainRetB() {
+        var r: Int = 0
+        var s: String = ""
+        
+        (r, s) = syncTest_ReturnsIforBoth+>>.sync(4)
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(s, "4", "incorrect response str")
+    }
+    
+    func testSync2Async_MainRetC() {
+        var r: Int = 0
+        var inMain = false
+        
+        r = { (i: Int) in inMain = onMainQueue(); return i }+>>.sync(4)
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(inMain, true, "incorrect queue")
+    }
+    
+    func testSync2Async_MainRetD() {
+        var r: Int = 0
+        var inMain = true
+        
+        r = { (i: Int) in inMain = onMainQueue(); return i }~>>.sync(4)
+        
+        XCTAssertEqual(r, 4, "incorrect response int")
+        XCTAssertEqual(inMain, false, "incorrect queue")
+    }
+    
+    func testSync2Async_MainRetE() {
+        var inMain = true;
+        
+        { inMain = onMainQueue() }~>>.sync()
+        
+        XCTAssertEqual(inMain, false, "incorrect queue")
+    }
+    
+    func testSync2Async_MainRetF() {
+        var inMain = false;
+        
+        { inMain = onMainQueue() }+>>.sync()
+        
+        XCTAssertEqual(inMain, true, "incorrect queue")
+    }
+    
+    // Compile checks
+    
     func makeSureThisCompiles() {
         
         syncTest_Return4+>>() +>> { i in }
