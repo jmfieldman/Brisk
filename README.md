@@ -393,3 +393,15 @@ dispatch_async(someQueue) {
 
 *Note that because of the Swift compiler, you may need to include a semicolon on the line
 before you create a statement with a block as the left-most expression.*
+
+## Versioning ##
+
+To help with Cocoapods versioning syntax, all versions of Brisk compatible with Swift 2.2 will begin with Major/Minor 2.2.  All versions comptible with Swift 2.3 will begin with Major/Minor 2.3.  All versions compatible with Swift 3.0 will begin with Major/Minor 3.0, etc.
+
+This means your Cocoapod inclusion can look like:
+
+```
+pod 'Brisk', '~> 2.2' # Latest version compatible with Swift 2.2
+pod 'Brisk', '~> 2.3' # Latest version compatible with Swift 2.3
+pod 'Brisk', '~> 3.0' # Latest version compatible with Swift 3.0
+```
