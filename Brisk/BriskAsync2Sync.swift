@@ -34,20 +34,19 @@ infix  operator ~~ { precedence 95 }
 /// - e.g.: ```let x = <-{ func(i, callback: $0)``` }
 public prefix func <-<O>(@noescape operation: (callbackHandler: (param: O) -> ()) -> ()) -> O {
     
+    // Our gating mechanism
+    let gate = BriskGate()
+    
     // This value will eventually hold the response from the async function
     var handledResponse: O?
     
-    // This is the async group we'll use to wait for a response
-    let group = dispatch_group_create()
-    
     let theHandler: (p: O) -> () = { responseFromCallback in
         handledResponse = responseFromCallback
-        dispatch_group_leave(group)
+        gate.signal()
     }
     
-    dispatch_group_enter(group)
     operation(callbackHandler: theHandler)
-    dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+    gate.wait()
     
     // It's ok to use ! -- theoretically we are garanteed that handledResponse
     // has been set by this point (inside theHandler)
@@ -58,24 +57,22 @@ public prefix func <-<O>(@noescape operation: (callbackHandler: (param: O) -> ()
 @inline(__always) private func processAsync2Sync<O>(operation: (callbackHandler: (param: O) -> ()) -> (),
                                                         queue: dispatch_queue_t) -> O {
     
+    // Our gating mechanism
+    let gate = BriskGate()
+    
     // This value will eventually hold the response from the async function
     var handledResponse: O?
     
-    // This is the async group we'll use to wait for a response
-    let group = dispatch_group_create()
-    
     let theHandler: (p: O) -> () = { responseFromCallback in
         handledResponse = responseFromCallback
-        dispatch_group_leave(group)
+        gate.signal()
     }
-    
-    dispatch_group_enter(group)
     
     dispatch_async(queue) {
         operation(callbackHandler: theHandler)
     }
     
-    dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+    gate.wait()
     
     // It's ok to use ! -- theoretically we are garanteed that handledResponse
     // has been set by this point (inside theHandler)
