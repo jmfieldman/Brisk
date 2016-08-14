@@ -1,0 +1,418 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		356AFC631D5E618700D18479 /* Brisk.h in Headers */ = {isa = PBXBuildFile; fileRef = 356AFC621D5E618700D18479 /* Brisk.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		356AFC6A1D5E618700D18479 /* Brisk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 356AFC5F1D5E618700D18479 /* Brisk.framework */; };
+		356AFC6F1D5E618700D18479 /* BriskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC6E1D5E618700D18479 /* BriskTests.swift */; };
+		356AFC7A1D5E61BE00D18479 /* BriskGCD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC791D5E61BE00D18479 /* BriskGCD.swift */; };
+		356AFC7C1D5E623E00D18479 /* BriskLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC7B1D5E623E00D18479 /* BriskLock.swift */; };
+		356AFC7E1D5E63C900D18479 /* BriskSync2Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC7D1D5E63C900D18479 /* BriskSync2Async.swift */; };
+		356AFC801D5E63D100D18479 /* BriskAsync2Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC7F1D5E63D100D18479 /* BriskAsync2Sync.swift */; };
+		356AFC821D5E8CAC00D18479 /* Spin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC811D5E8CAC00D18479 /* Spin.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		356AFC6B1D5E618700D18479 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 356AFC561D5E618700D18479 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 356AFC5E1D5E618700D18479;
+			remoteInfo = Brisk;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		356AFC5F1D5E618700D18479 /* Brisk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Brisk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		356AFC621D5E618700D18479 /* Brisk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Brisk.h; sourceTree = "<group>"; };
+		356AFC641D5E618700D18479 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		356AFC691D5E618700D18479 /* BriskTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BriskTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		356AFC6E1D5E618700D18479 /* BriskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BriskTests.swift; sourceTree = "<group>"; };
+		356AFC701D5E618700D18479 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		356AFC791D5E61BE00D18479 /* BriskGCD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskGCD.swift; sourceTree = "<group>"; };
+		356AFC7B1D5E623E00D18479 /* BriskLock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskLock.swift; sourceTree = "<group>"; };
+		356AFC7D1D5E63C900D18479 /* BriskSync2Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskSync2Async.swift; sourceTree = "<group>"; };
+		356AFC7F1D5E63D100D18479 /* BriskAsync2Sync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskAsync2Sync.swift; sourceTree = "<group>"; };
+		356AFC811D5E8CAC00D18479 /* Spin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spin.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		356AFC5B1D5E618700D18479 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		356AFC661D5E618700D18479 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				356AFC6A1D5E618700D18479 /* Brisk.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		356AFC551D5E618700D18479 = {
+			isa = PBXGroup;
+			children = (
+				356AFC611D5E618700D18479 /* Brisk */,
+				356AFC6D1D5E618700D18479 /* BriskTests */,
+				356AFC601D5E618700D18479 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		356AFC601D5E618700D18479 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				356AFC5F1D5E618700D18479 /* Brisk.framework */,
+				356AFC691D5E618700D18479 /* BriskTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		356AFC611D5E618700D18479 /* Brisk */ = {
+			isa = PBXGroup;
+			children = (
+				356AFC621D5E618700D18479 /* Brisk.h */,
+				356AFC641D5E618700D18479 /* Info.plist */,
+				356AFC791D5E61BE00D18479 /* BriskGCD.swift */,
+				356AFC7B1D5E623E00D18479 /* BriskLock.swift */,
+				356AFC7D1D5E63C900D18479 /* BriskSync2Async.swift */,
+				356AFC7F1D5E63D100D18479 /* BriskAsync2Sync.swift */,
+			);
+			path = Brisk;
+			sourceTree = "<group>";
+		};
+		356AFC6D1D5E618700D18479 /* BriskTests */ = {
+			isa = PBXGroup;
+			children = (
+				356AFC6E1D5E618700D18479 /* BriskTests.swift */,
+				356AFC811D5E8CAC00D18479 /* Spin.swift */,
+				356AFC701D5E618700D18479 /* Info.plist */,
+			);
+			path = BriskTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		356AFC5C1D5E618700D18479 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				356AFC631D5E618700D18479 /* Brisk.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		356AFC5E1D5E618700D18479 /* Brisk */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 356AFC731D5E618700D18479 /* Build configuration list for PBXNativeTarget "Brisk" */;
+			buildPhases = (
+				356AFC5A1D5E618700D18479 /* Sources */,
+				356AFC5B1D5E618700D18479 /* Frameworks */,
+				356AFC5C1D5E618700D18479 /* Headers */,
+				356AFC5D1D5E618700D18479 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Brisk;
+			productName = Brisk;
+			productReference = 356AFC5F1D5E618700D18479 /* Brisk.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		356AFC681D5E618700D18479 /* BriskTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 356AFC761D5E618700D18479 /* Build configuration list for PBXNativeTarget "BriskTests" */;
+			buildPhases = (
+				356AFC651D5E618700D18479 /* Sources */,
+				356AFC661D5E618700D18479 /* Frameworks */,
+				356AFC671D5E618700D18479 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				356AFC6C1D5E618700D18479 /* PBXTargetDependency */,
+			);
+			name = BriskTests;
+			productName = BriskTests;
+			productReference = 356AFC691D5E618700D18479 /* BriskTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		356AFC561D5E618700D18479 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "Jason Fieldman";
+				TargetAttributes = {
+					356AFC5E1D5E618700D18479 = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					356AFC681D5E618700D18479 = {
+						CreatedOnToolsVersion = 7.3;
+					};
+				};
+			};
+			buildConfigurationList = 356AFC591D5E618700D18479 /* Build configuration list for PBXProject "Brisk" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 356AFC551D5E618700D18479;
+			productRefGroup = 356AFC601D5E618700D18479 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				356AFC5E1D5E618700D18479 /* Brisk */,
+				356AFC681D5E618700D18479 /* BriskTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		356AFC5D1D5E618700D18479 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		356AFC671D5E618700D18479 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		356AFC5A1D5E618700D18479 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				356AFC801D5E63D100D18479 /* BriskAsync2Sync.swift in Sources */,
+				356AFC7E1D5E63C900D18479 /* BriskSync2Async.swift in Sources */,
+				356AFC7C1D5E623E00D18479 /* BriskLock.swift in Sources */,
+				356AFC7A1D5E61BE00D18479 /* BriskGCD.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		356AFC651D5E618700D18479 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				356AFC821D5E8CAC00D18479 /* Spin.swift in Sources */,
+				356AFC6F1D5E618700D18479 /* BriskTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		356AFC6C1D5E618700D18479 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 356AFC5E1D5E618700D18479 /* Brisk */;
+			targetProxy = 356AFC6B1D5E618700D18479 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		356AFC711D5E618700D18479 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		356AFC721D5E618700D18479 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		356AFC741D5E618700D18479 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Brisk/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.fieldman.Brisk;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		356AFC751D5E618700D18479 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Brisk/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.fieldman.Brisk;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		356AFC771D5E618700D18479 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = BriskTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.fieldman.BriskTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		356AFC781D5E618700D18479 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = BriskTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.fieldman.BriskTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		356AFC591D5E618700D18479 /* Build configuration list for PBXProject "Brisk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				356AFC711D5E618700D18479 /* Debug */,
+				356AFC721D5E618700D18479 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		356AFC731D5E618700D18479 /* Build configuration list for PBXNativeTarget "Brisk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				356AFC741D5E618700D18479 /* Debug */,
+				356AFC751D5E618700D18479 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		356AFC761D5E618700D18479 /* Build configuration list for PBXNativeTarget "BriskTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				356AFC771D5E618700D18479 /* Debug */,
+				356AFC781D5E618700D18479 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 356AFC561D5E618700D18479 /* Project object */;
+}

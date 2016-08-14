@@ -1,0 +1,289 @@
+//
+//  BriskGCD.swift
+//  Brisk
+//
+//  Created by Jason Fieldman on 8/12/16.
+//  Copyright © 2016 Jason Fieldman. All rights reserved.
+//
+
+import Foundation
+
+
+
+
+/// The leeway granted for inexact timers.
+private let kInexactTimerLeeway = UInt64(0.01 * Double(NSEC_PER_SEC))
+
+/// The main dispatch queue
+internal let mainQueue = dispatch_get_main_queue()
+
+/// The generic concurrent background queue
+internal let backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+
+
+// MARK: - Dispatch Helpers
+
+
+/// Execute a block asynchronously on the main dispatch queue
+///
+/// - parameter block: The block to execute.
+@inline(__always) public func dispatch_main_async(block: () -> ()) {
+    
+    dispatch_async(mainQueue, block)
+}
+
+
+/// Execute a block asynchronously on the generic concurrent background queue.
+///
+/// - parameter block: The block to execute.
+@inline(__always) public func dispatch_bg_async(block: () -> ()) {
+    
+    dispatch_async(backgroundQueue, block)
+}
+
+
+// Data Structures for dispatch_async
+private var queueForId: [String : dispatch_queue_t] = [:]
+private var queueLock:   OSSpinLock                 = OS_SPINLOCK_INIT
+
+/// Executes a block on an ad-hoc named serial dispatch queue.  If a queue was already created
+/// with the provided name, it is reused.  This allows you to dispatch code on serial queues
+/// whose uniqueness is identified by a string, rather than a pre-allocated queue instance.
+/// - note: This is a more a convenience feature than a recommended practice.  It is generally
+///         safer from a coding perspective to use a pre-instantiated queue variable.
+@inline(__always) public func dispatch_async(queueName: String, block: () -> ()) {
+    
+    if let queue: dispatch_queue_t = synchronized(&queueLock, block: { return queueForId[queueName] }) {
+        dispatch_async(queue, block)
+        return
+    }
+    
+    synchronized(&queueLock) {
+        let queue = dispatch_queue_create(queueName, nil)
+        queueForId[queueName] = queue
+        dispatch_async(queue, block)
+    }
+}
+
+
+/// Execute a block synchronously on the main dispatch queue.  If called
+/// from the main queue, the block is executed immediately.
+///
+/// - parameter block: The block to execute.
+@inline(__always) public func dispatch_main_sync(block: () -> ())  {
+    
+    if NSThread.currentThread().isMainThread {
+        block()
+    } else {
+        dispatch_sync(mainQueue, block)
+    }
+}
+
+
+/// Dispatch a block asynchronously on a dispatch queue after a certain time interval.
+/// The dispatch timer will use the standard leeway (non-exact).
+///
+/// - parameter after: The time to wait before running the block asynchronously.
+/// - parameter block: The block to execute.
+@inline(__always) public func dispatch_after(seconds: NSTimeInterval,
+                                           _ onQueue: dispatch_queue_t,
+                                             _ block: () -> ()) {
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(seconds * Double(NSEC_PER_SEC))), onQueue, block)
+}
+
+
+/// Dispatch a block asynchronously on a dispatch queue after a certain time interval.
+/// The dispatch timer will use 0 leeway to make the timing as exact as possible.  This is used
+/// mainly for animation or other activities that require exact timing.
+///
+///  - parameter after: The time to wait before running the block asynchronously.
+///  - parameter block: The block to execute.
+@inline(__always) public func dispatch_after_exactly(seconds: NSTimeInterval,
+                                                   _ onQueue: dispatch_queue_t,
+                                                     _ block: (() -> ())) {
+    
+    let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, onQueue)
+    dispatch_source_set_event_handler(timer) {
+        dispatch_source_cancel(timer); // one shot timer
+        block()
+    }
+    
+    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, Int64(seconds * Double(NSEC_PER_SEC))), DISPATCH_TIME_FOREVER, 0)
+    dispatch_resume(timer)
+}
+
+
+/// Dispatch a block every interval on the given queue.  You stop the timer by calling
+/// dispatch_source_cancel on the returned timer.
+///
+/// - parameter interval: The interval to call the block.
+/// - parameter onQueue:  The queue to call the block on.
+/// - parameter block:    The block to execute.
+///
+/// - returns: The dispatch_source_t that represents the timer.
+///            You must eventually cancel this with dispatch_source_cancel()
+@inline(__always) public func dispatch_every(interval: NSTimeInterval,
+                                            _ onQueue: dispatch_queue_t,
+                                              _ block: (dispatch_source_t -> ())) -> dispatch_source_t {
+    
+    let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, onQueue)
+    dispatch_source_set_event_handler(timer) {
+        dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, Int64(interval * Double(NSEC_PER_SEC))), DISPATCH_TIME_FOREVER, kInexactTimerLeeway)
+        block(timer)
+    }
+    
+    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, Int64(interval * Double(NSEC_PER_SEC))), DISPATCH_TIME_FOREVER, kInexactTimerLeeway)
+    dispatch_resume(timer)
+    return timer
+}
+
+
+/// Dispatch a block every interval on the given queue.  You stop the timer by calling
+/// dispatch_source_cancel on the returned timer.
+///
+/// This function uses the most exact timing possible the timer.
+///
+/// - parameter interval: The interval to call the block.
+/// - parameter onQueue:  The queue to call the block on.
+/// - parameter block:    The block to execute.
+///
+/// - returns: The dispatch_source_t that represents the timer.
+///            You must eventually cancel this with dispatch_source_cancel()
+@inline(__always) public func dispatch_every_exact(interval: NSTimeInterval,
+                                                  _ onQueue: dispatch_queue_t,
+                                                    _ block: (dispatch_source_t -> ())) -> dispatch_source_t {
+    
+    let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, onQueue)
+    dispatch_source_set_event_handler(timer) {
+        dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, Int64(interval * Double(NSEC_PER_SEC))), DISPATCH_TIME_FOREVER, 0)
+        block(timer)
+    }
+    
+    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, Int64(interval * Double(NSEC_PER_SEC))), DISPATCH_TIME_FOREVER, 0)
+    dispatch_resume(timer)
+    return timer
+}
+
+
+/// Dispatch a block asynchronously on the main dispatch queue after a certain time interval.
+/// The dispatch timer will use the standard leeway (non-exact).
+///
+/// - parameter after: The time to wait before running the block asynchronously.
+/// - parameter block: The block to execute.
+@inline(__always) public func dispatch_main_after(seconds: NSTimeInterval,
+                                                  _ block: () -> ()) {
+    
+    dispatch_after(seconds, mainQueue, block)
+}
+
+
+/// Dispatch a block asynchronously on the main dispatch queue after a certain time interval.
+/// The dispatch timer will use 0 leeway to make the timing as exact as possible.  This is used
+/// mainly for animation or other activities that require exact timing.
+///
+/// - parameter after: The time to wait before running the block asynchronously.
+/// - parameter block: The block to execute.
+@inline(__always) public func dispatch_main_after_exactly(seconds: NSTimeInterval,
+                                                          _ block: (() -> ())) {
+    
+    dispatch_after_exactly(seconds, mainQueue, block)
+}
+
+
+/// Dispatch a block every interval on the main queue.  You stop the timer by calling
+/// dispatch_source_cancel on the returned timer.
+///
+/// - parameter interval: The interval to call the block.
+/// - parameter block:    The block to execute.
+///
+/// - returns: The dispatch_source_t that represents the timer.
+///            You must eventually cancel this with dispatch_source_cancel()
+@inline(__always) public func dispatch_main_every(interval: NSTimeInterval,
+                                                   _ block: (dispatch_source_t -> ())) -> dispatch_source_t {
+    
+    return dispatch_every(interval, mainQueue, block)
+}
+
+
+/// Dispatch a block every interval on the main queue.  You stop the timer by calling
+/// dispatch_source_cancel on the returned timer.
+///
+/// This function uses the most exact timing possible on the timer.
+///
+/// - parameter interval: The interval to call the block.
+/// - parameter block:    The block to execute.
+///
+/// - returns: The dispatch_source_t that represents the timer.
+///            You must eventually cancel this with dispatch_source_cancel()
+@inline(__always) public func dispatch_main_every_exact(interval: NSTimeInterval,
+                                                         _ block: (dispatch_source_t -> ())) -> dispatch_source_t {
+    
+    return dispatch_every_exact(interval, mainQueue, block)
+}
+
+
+
+// Data Structures for dispatch_once_after
+private var operationTimerForId: [String : dispatch_source_t] = [:]
+private var operationTimerLock:   OSSpinLock                  = OS_SPINLOCK_INIT
+
+/// Queue up an action to take place on an queue in the future, but make sure it only triggers once.
+/// This allows you to queue up the same operation several times and not worry about
+/// it being called multiple times later.
+public func dispatch_once_after(after: NSTimeInterval,
+                          operationId: String,
+                        onQueue queue: dispatch_queue_t,
+                                block: () -> ()) {
+    
+    // Check if we already have a timer source for this operation ID
+    if let existingTimer: dispatch_source_t = synchronized(&operationTimerLock, block: { return operationTimerForId[operationId] }) {
+        dispatch_source_set_timer(existingTimer, dispatch_time(DISPATCH_TIME_NOW, Int64(after * Double(NSEC_PER_SEC))), DISPATCH_TIME_FOREVER, NSEC_PER_MSEC)
+        return
+    }
+    
+    // Timer doesn't exist, we have to make one!
+    let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue)
+    dispatch_source_set_event_handler(timer) {
+        
+        // one shot timer -- remove from dictionary
+        synchronized(&operationTimerLock) {
+            operationTimerForId.removeValueForKey(operationId)
+            dispatch_source_cancel(timer)
+        }
+        block()
+    }
+    
+    // Set it!
+    synchronized(&operationTimerLock) { operationTimerForId[operationId] = timer }
+    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, Int64(after * Double(NSEC_PER_SEC))), DISPATCH_TIME_FOREVER, NSEC_PER_MSEC)
+    dispatch_resume(timer)
+}
+
+
+/// Queue up an action to take place on the main queue in the future, but make sure it only triggers once.
+/// This allows you to queue up the same operation several times and not worry about
+/// it being called multiple times later.
+public func dispatch_main_once_after(after: NSTimeInterval,
+                               operationId: String,
+                                     block: () -> ()) {
+    
+    dispatch_once_after(after, operationId: operationId, onQueue: mainQueue, block: block)
+}
+
+/// This is a helper to take advantage of multiple cores when performing an activity in parallel on
+/// multiple values in an array.
+///
+/// - parameter elements: An array of elements to process
+/// - parameter queue:    The dispatch queue to process on (should be concurrent)
+/// - parameter block:    The block to process for each element.
+public func dispatch_each<T>(elements: [T],
+                                queue: dispatch_queue_t,
+                                block: (T) -> ()) {
+    
+    dispatch_apply(elements.count, queue) { i in
+        block(elements[i])
+    }
+}
+
+
