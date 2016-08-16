@@ -262,6 +262,16 @@ Brisk can only be used for functions that guarantee their completion handlers wi
 be called at some deterministic point in the future.  It is not suitable for open-ended
 asynchronous functions like ```NSNotification``` handlers.
 
+Another really important note: because of the requirement that ```$0``` is called, you should
+never use this pattern with optional functions unless you can guarantee they are not nil!
+
+```swift
+func testFunction(handler: (Int -> Void)? = nil) {
+    // This call will block forever if handler is nil!
+    let z: Int = <<~{ handler?($0) }
+}
+```
+
 ## Calling Synchronous Functions Asynchronously ##
 
 There are many reasons to call synchronous functions asynchronously.  It's happening any
@@ -363,6 +373,29 @@ dispatch_async(someQueue) {
 
     // Using the more functional style
     syncReturnsParam~>>.on(otherQueue).async(p: 3) +>> { i in print(i) }    
+}
+```
+
+### Optionals ###
+
+When the function you are routing is an optional, you must use the ```?~>>``` and ```?+>>```
+operators when referencing the function:
+
+```swift
+func myTest(param: Int, completionHandler: (Int -> Int)? = nil) {
+
+    // These will cause a compiler error because the handler is optional:
+    completionHandler +>> (param)
+    completionHandler+>>.async(param) +>> { i in print(i) }
+
+    // Instead use these:
+    completionHandler ?+>> (param)
+    completionHandler?~>>.async(param)
+
+    // For anything past the initial function, use normal operators:
+    //     (+>> instead of ?+>>) --v
+    completionHandler ?+>> (param) +>> { i in print(i) }
+
 }
 ```
 
