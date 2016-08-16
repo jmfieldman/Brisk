@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
     s.name         = "Brisk"
-    s.version      = "2.2.1"
+    s.version      = "2.2.2"
     s.summary      = "Concise concurrency manipulation for Swift"
 
     s.description  = <<-DESC
