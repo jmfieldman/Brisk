@@ -605,6 +605,11 @@ class BriskTests: XCTestCase {
         let _ = s
     }
     
+    func makeSureThisCompiles(p: Int, completionHandler: ((i: Int) -> Int)?) {
+        completionHandler ?+>> (3) +>> { i in }
+        completionHandler?+>>.async(3)
+        let _: Int? = completionHandler?~>>.sync(3)
+    }
     
 	
 	// MARK: - Async Functions to Test With
