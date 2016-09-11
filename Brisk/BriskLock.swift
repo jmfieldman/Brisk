@@ -30,40 +30,6 @@ import Foundation
 
 // MARK: - Concurrency Synchronization
 
-/// Perform a block synchronized on a spin lock.
-///
-/// - parameter lock:  The spinlock to use.
-/// - parameter block: The block to perform.
-@inline(__always) public func synchronized(inout lock: OSSpinLock, @noescape block: () -> ()) {
-    OSSpinLockLock(&lock)
-    block()
-    OSSpinLockUnlock(&lock)
-}
-
-
-/// Perform a block synchronized on a spin lock.  The block returns a value.
-///
-/// - parameter lock:  The spinlock to use.
-/// - parameter block: The block to perform.
-@inline(__always) public func synchronized<T>(inout lock: OSSpinLock, @noescape block: () -> T) -> T {
-    OSSpinLockLock(&lock)
-    let r = block()
-    OSSpinLockUnlock(&lock)
-    return r
-}
-
-
-/// Perform a block synchronized on a spin lock.  The block returns an optional value.
-///
-/// - parameter lock:  The spinlock to use.
-/// - parameter block: The block to perform.
-@inline(__always) public func synchronized<T>(inout lock: OSSpinLock, @noescape block: () -> T?) -> T? {
-    OSSpinLockLock(&lock)
-    let r = block()
-    OSSpinLockUnlock(&lock)
-    return r
-}
-
 
 /// Perform a block synchronized on a NSLocking object.
 ///
@@ -101,16 +67,16 @@ import Foundation
 
 
 // For the universal synchronization
-private var universalLock: OSSpinLock = OS_SPINLOCK_INIT
+private var universalLock: NSRecursiveLock = NSRecursiveLock()
 
 
 /// Perform a block synchronized on the global static spin lock.
 ///
 /// - parameter block: The block to perform.
 @inline(__always) public func synchronized(@noescape block: () -> ()) {
-    OSSpinLockLock(&universalLock)
+    universalLock.lock()
     block()
-    OSSpinLockUnlock(&universalLock)
+    universalLock.unlock()
 }
 
 
@@ -118,9 +84,9 @@ private var universalLock: OSSpinLock = OS_SPINLOCK_INIT
 ///
 /// - parameter block: The block to perform.
 @inline(__always) public func synchronized<T>(@noescape block: () -> T) -> T {
-    OSSpinLockLock(&universalLock)
+    universalLock.lock()
     let r = block()
-    OSSpinLockUnlock(&universalLock)
+    universalLock.unlock()
     return r
 }
 
@@ -129,9 +95,9 @@ private var universalLock: OSSpinLock = OS_SPINLOCK_INIT
 ///
 /// - parameter block: The block to perform.
 @inline(__always) public func synchronized<T>(@noescape block: () -> T?) -> T? {
-    OSSpinLockLock(&universalLock)
+    universalLock.lock()
     let r = block()
-    OSSpinLockUnlock(&universalLock)
+    universalLock.unlock()
     return r
 }
 

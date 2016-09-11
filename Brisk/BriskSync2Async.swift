@@ -51,7 +51,7 @@ public class __BriskRoutingObj<I, O> {
     private var handlerQueue: dispatch_queue_t? = nil
     
     // The lock used to synchronize various accesses
-    private var lock: OSSpinLock = OS_SPINLOCK_INIT
+    private var lock: NSLock = NSLock()
     
     // Is this routing object available to perform its operation?
     // The routing objects may only perform their operations once, they should
@@ -115,7 +115,7 @@ public class __BriskRoutingObj<I, O> {
             }
         }
                 
-        guard !synchronized(&lock, block: { let o = self.operated; self.operated = false; return o }) else {
+        guard !synchronized(lock, block: { let o = self.operated; self.operated = false; return o }) else {
             brisk_raise("You may not retain or use this routing object in a way that it can be executed more than once.")
         }
         
@@ -168,7 +168,7 @@ public class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
             brisk_raise("You must specify a queue for this function to operate on")
         }
         
-        guard !synchronized(&lock, block: { let o = self.operated; self.operated = false; return o }) else {
+        guard !synchronized(lock, block: { let o = self.operated; self.operated = false; return o }) else {
             brisk_raise("You may not retain or use this routing object in a way that it can be executed more than once.")
         }
         
@@ -203,7 +203,7 @@ public class __BriskRoutingObjNonVoid<I, O>: __BriskRoutingObj<I, O> {
             brisk_raise("You must specify a queue for this function to operate on")
         }
         
-        guard !synchronized(&lock, block: { let o = self.operated; self.operated = false; return o }) else {
+        guard !synchronized(lock, block: { let o = self.operated; self.operated = false; return o }) else {
             brisk_raise("You may not retain or use this routing object in a way that it can be executed more than once.")
         }
         
