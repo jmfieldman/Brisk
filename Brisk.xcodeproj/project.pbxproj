@@ -17,6 +17,7 @@
 		356AFC801D5E63D100D18479 /* BriskAsync2Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC7F1D5E63D100D18479 /* BriskAsync2Sync.swift */; };
 		356AFC821D5E8CAC00D18479 /* Spin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC811D5E8CAC00D18479 /* Spin.swift */; };
 		3585ABB41D8624E10063299C /* BriskGCD_Swift2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585ABB31D8624E10063299C /* BriskGCD_Swift2.swift */; };
+		3585ABB61D86265E0063299C /* BriskDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585ABB51D86265E0063299C /* BriskDispatch.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,7 @@
 		3585AB7C1D845A550063299C /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = SOURCE_ROOT; };
 		3585ABB01D85FE8F0063299C /* README_SWIFT2.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README_SWIFT2.md; sourceTree = SOURCE_ROOT; };
 		3585ABB31D8624E10063299C /* BriskGCD_Swift2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskGCD_Swift2.swift; sourceTree = "<group>"; };
+		3585ABB51D86265E0063299C /* BriskDispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskDispatch.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +107,7 @@
 				356AFC7B1D5E623E00D18479 /* BriskLock.swift */,
 				356AFC7D1D5E63C900D18479 /* BriskSync2Async.swift */,
 				356AFC7F1D5E63D100D18479 /* BriskAsync2Sync.swift */,
+				3585ABB51D86265E0063299C /* BriskDispatch.swift */,
 				35057D711D60B930004BBF6D /* BriskRaise.swift */,
 				35057D731D60BCF9004BBF6D /* BriskGate.swift */,
 				3585ABB21D8624E10063299C /* Swift2 */,
@@ -243,6 +246,7 @@
 				356AFC801D5E63D100D18479 /* BriskAsync2Sync.swift in Sources */,
 				35057D721D60B930004BBF6D /* BriskRaise.swift in Sources */,
 				35057D741D60BCF9004BBF6D /* BriskGate.swift in Sources */,
+				3585ABB61D86265E0063299C /* BriskDispatch.swift in Sources */,
 				3585ABB41D8624E10063299C /* BriskGCD_Swift2.swift in Sources */,
 				356AFC7E1D5E63C900D18479 /* BriskSync2Async.swift in Sources */,
 				356AFC7C1D5E623E00D18479 /* BriskLock.swift in Sources */,

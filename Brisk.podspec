@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
     s.name         = "Brisk"
-    s.version      = "2.3.1"
+    s.version      = "3.0.0"
     s.summary      = "Concise concurrency manipulation for Swift"
 
     s.description  = <<-DESC
@@ -23,6 +23,17 @@ Pod::Spec.new do |s|
 
     s.requires_arc = true
 
-    s.xcconfig = { 'SWIFT_VERSION' => '2.3' }
+    s.xcconfig = { 'SWIFT_VERSION' => '3.0' }
+
+    s.default_subspec = 'Core'
+
+    s.subspec 'Core' do |ss|
+        ss.source_files = "Brisk/*.swift"
+    end
+
+    s.subspec 'Swift2' do |ss|
+        ss.source_files = "Brisk/Swift2/*.swift"
+        ss.dependency 'Brisk/Core'
+    end
 
 end
