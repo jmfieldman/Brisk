@@ -35,7 +35,7 @@ import Foundation
 ///
 /// - parameter lock:  The NSLocking object to use.
 /// - parameter block: The block to perform.
-@inline(__always) public func synchronized(lock: NSLocking, @noescape block: () -> ()) {
+@inline(__always) public func synchronized(_ lock: NSLocking, block: () -> ()) {
     lock.lock()
     block()
     lock.unlock()
@@ -46,7 +46,7 @@ import Foundation
 ///
 /// - parameter lock:  The NSLocking object to use.
 /// - parameter block: The block to perform.
-@inline(__always) public func synchronized<T>(lock: NSLocking, @noescape block: () -> T) -> T {
+@inline(__always) public func synchronized<T>(_ lock: NSLocking, block: () -> T) -> T {
     lock.lock()
     let r = block()
     lock.unlock()
@@ -58,7 +58,7 @@ import Foundation
 ///
 /// - parameter lock:  The NSLocking object to use.
 /// - parameter block: The block to perform.
-@inline(__always) public func synchronized<T>(lock: NSLocking, @noescape block: () -> T?) -> T? {
+@inline(__always) public func synchronized<T>(_ lock: NSLocking, block: () -> T?) -> T? {
     lock.lock()
     let r = block()
     lock.unlock()
@@ -73,7 +73,7 @@ private var universalLock: NSRecursiveLock = NSRecursiveLock()
 /// Perform a block synchronized on the global static spin lock.
 ///
 /// - parameter block: The block to perform.
-@inline(__always) public func synchronized(@noescape block: () -> ()) {
+@inline(__always) public func synchronized(_ block: () -> ()) {
     universalLock.lock()
     block()
     universalLock.unlock()
@@ -83,7 +83,7 @@ private var universalLock: NSRecursiveLock = NSRecursiveLock()
 /// Perform a block synchronized on the global static spin lock.  The block returns a value.
 ///
 /// - parameter block: The block to perform.
-@inline(__always) public func synchronized<T>(@noescape block: () -> T) -> T {
+@inline(__always) public func synchronized<T>(_ block: () -> T) -> T {
     universalLock.lock()
     let r = block()
     universalLock.unlock()
@@ -94,7 +94,7 @@ private var universalLock: NSRecursiveLock = NSRecursiveLock()
 /// Perform a block synchronized on the global static spin lock.  The block returns an optional value.
 ///
 /// - parameter block: The block to perform.
-@inline(__always) public func synchronized<T>(@noescape block: () -> T?) -> T? {
+@inline(__always) public func synchronized<T>(_ block: () -> T?) -> T? {
     universalLock.lock()
     let r = block()
     universalLock.unlock()

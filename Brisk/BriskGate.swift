@@ -33,31 +33,31 @@ import Foundation
 internal class BriskGate {
     
     var isMain:     Bool
-    var group:      dispatch_group_t?   = nil
-    var finished:   Bool                = false
+    var group:      DispatchGroup?   = nil
+    var finished:   Bool             = false
     
     init() {
-        isMain = NSThread.currentThread().isMainThread
+        isMain = Thread.current.isMainThread
         if !isMain {
-            group = dispatch_group_create()
-            dispatch_group_enter(group!)
+            group = DispatchGroup()
+            group!.enter()
         }
     }
     
     func signal() {
         finished = true
         if !isMain {
-            dispatch_group_leave(group!)
+            group!.leave()
         }
     }
     
     func wait() {
         if isMain {
             while !finished {
-                NSRunLoop.currentRunLoop().runMode(NSDefaultRunLoopMode, beforeDate: NSDate(timeIntervalSinceNow: 0.1))
+                RunLoop.current.run(mode: RunLoopMode.defaultRunLoopMode, before: Date(timeIntervalSinceNow: 0.1))
             }
         } else {
-            dispatch_group_wait(group!, DISPATCH_TIME_FOREVER)
+            group!.wait(timeout: DispatchTime.distantFuture)
         }
     }
     

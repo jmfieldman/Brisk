@@ -36,34 +36,34 @@ public class __BriskRoutingObj<I, O> {
     // ---------- Properties ----------
     
     // The dispatch group used in various synchronizing routines
-    private let dispatchGroup = dispatch_group_create()
+    fileprivate let dispatchGroup = DispatchGroup()
     
     // This is the actual function that we are routing
-    private let wrappedFunction: I -> O
+    fileprivate let wrappedFunction: (I) -> O
     
     // If we are routing the response, this catches the value
-    private var response: O? = nil
+    fileprivate var response: O? = nil
     
     // This is the queue that the function will be executed on
-    private var opQueue: dispatch_queue_t? = nil
+    fileprivate var opQueue: DispatchQueue? = nil
     
     // This is the queue that the handler will execute on (if needed)
-    private var handlerQueue: dispatch_queue_t? = nil
+    fileprivate var handlerQueue: DispatchQueue? = nil
     
     // The lock used to synchronize various accesses
-    private var lock: NSLock = NSLock()
+    fileprivate var lock: NSLock = NSLock()
     
     // Is this routing object available to perform its operation?
     // The routing objects may only perform their operations once, they should
     // NOT be retained and called a second time.
-    private var operated: Bool = false
+    fileprivate var operated: Bool = false
     
     
     
     // ---------- Init ------------
     
     // Instantiate ourselves with a function
-    private init(function: I -> O, defaultOpQueue: dispatch_queue_t? = nil) {
+    fileprivate init(function: @escaping (I) -> O, defaultOpQueue: DispatchQueue? = nil) {
         wrappedFunction = function
         opQueue = defaultOpQueue
     }
@@ -88,7 +88,7 @@ public class __BriskRoutingObj<I, O> {
     
     /// Returns the current routing object set to execute its
     /// function on the specified queue
-    @inline(__always) public func on(queue: dispatch_queue_t) -> __BriskRoutingObj<I, O> {
+    @inline(__always) public func on(_ queue: DispatchQueue) -> __BriskRoutingObj<I, O> {
         self.opQueue = queue
         return self
     }
@@ -103,13 +103,13 @@ public class __BriskRoutingObj<I, O> {
     /// on the specified queue.  The calling thread is blocked until the
     /// called function completes.  Not compatible with functions that throw
     /// errors.
-    public var sync: I -> O {
+    public var sync: (I) -> O {
         guard let opQ = opQueue else {
             brisk_raise("You must specify a queue for this function to operate on")
         }
         
         // If we're synchronous on the main thread already, just run the function immediately.
-        if opQ === mainQueue && NSThread.currentThread().isMainThread {
+        if opQ === mainQueue && Thread.current.isMainThread {
             return { i in
                 return self.wrappedFunction(i)
             }
@@ -120,26 +120,26 @@ public class __BriskRoutingObj<I, O> {
         }
         
         return { i in
-            dispatch_group_enter(self.dispatchGroup)
-            dispatch_async(opQ) {
+            self.dispatchGroup.enter()
+            opQ.async {
                 self.response = self.wrappedFunction(i)
-                dispatch_group_leave(self.dispatchGroup)
+                self.dispatchGroup.leave()
             }
-            dispatch_group_wait(self.dispatchGroup, DISPATCH_TIME_FOREVER)
+            self.dispatchGroup.wait(timeout: DispatchTime.distantFuture)
             return self.response! // Will be set in the async call above
         }
     }
     
     
     /// Processes the async handler applied to this routing object.
-    private func processAsyncHandler(handler: O -> Void) {
+    fileprivate func processAsyncHandler(_ handler: @escaping (O) -> Void) {
         guard let hQ = self.handlerQueue else {
             brisk_raise("The handler queue was not specified before routing the async response")
         }
         
-        dispatch_async(backgroundQueue) {
-            dispatch_group_wait(self.dispatchGroup, DISPATCH_TIME_FOREVER)
-            dispatch_async(hQ) {
+        backgroundQueue.async {
+            self.dispatchGroup.wait(timeout: DispatchTime.distantFuture)
+            hQ.async {
                 handler(self.response!) // Will be set in the async call before wait completes
             }
         }
@@ -150,7 +150,7 @@ public class __BriskRoutingObj<I, O> {
 public class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
     
     // Instantiate ourselves with a function
-    override private init(function: I -> Void, defaultOpQueue: dispatch_queue_t? = nil) {
+    override fileprivate init(function: @escaping (I) -> Void, defaultOpQueue: DispatchQueue? = nil) {
         super.init(function: function, defaultOpQueue: defaultOpQueue)
     }
     
@@ -163,7 +163,7 @@ public class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
     /// is not exited until the wrapped function completes.  This
     /// internal dispatchQueue can be waited on to funnel the response
     /// of the wrapped function to yet another async dispatch.
-    public var async: I -> Void {
+    public var async: (I) -> Void {
         guard let opQ = opQueue else {
             brisk_raise("You must specify a queue for this function to operate on")
         }
@@ -173,10 +173,10 @@ public class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
         }
         
         return { i in
-            dispatch_group_enter(self.dispatchGroup)
-            dispatch_async(opQ) {
+            self.dispatchGroup.enter()
+            opQ.async {
                 self.response = self.wrappedFunction(i)
-                dispatch_group_leave(self.dispatchGroup)
+                self.dispatchGroup.leave()
             }
         }
     }
@@ -185,7 +185,7 @@ public class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
 public class __BriskRoutingObjNonVoid<I, O>: __BriskRoutingObj<I, O> {
     
     // Instantiate ourselves with a function
-    override private init(function: I -> O, defaultOpQueue: dispatch_queue_t? = nil) {
+    override fileprivate init(function: @escaping (I) -> O, defaultOpQueue: DispatchQueue? = nil) {
         super.init(function: function, defaultOpQueue: defaultOpQueue)
     }
     
@@ -198,7 +198,7 @@ public class __BriskRoutingObjNonVoid<I, O>: __BriskRoutingObj<I, O> {
     /// is not exited until the wrapped function completes.  This
     /// internal dispatchQueue can be waited on to funnel the response
     /// of the wrapped function to yet another async dispatch.
-    public var async: I -> __BriskRoutingObjNonVoid<I, O> {
+    public var async: (I) -> __BriskRoutingObjNonVoid<I, O> {
         guard let opQ = opQueue else {
             brisk_raise("You must specify a queue for this function to operate on")
         }
@@ -208,10 +208,10 @@ public class __BriskRoutingObjNonVoid<I, O>: __BriskRoutingObj<I, O> {
         }
         
         return { i in
-            dispatch_group_enter(self.dispatchGroup)
-            dispatch_async(opQ) {
+            self.dispatchGroup.enter()
+            opQ.async {
                 self.response = self.wrappedFunction(i)
-                dispatch_group_leave(self.dispatchGroup)
+                self.dispatchGroup.leave()
             }
             return self
         }
@@ -222,13 +222,13 @@ public class __BriskRoutingObjNonVoid<I, O>: __BriskRoutingObj<I, O> {
 
 // MARK: - Operators
 
-postfix operator ->> {}
-postfix operator ~>> {}
-postfix operator +>> {}
+postfix operator ->>
+postfix operator ~>>
+postfix operator +>>
 
-postfix operator ?->> {}
-postfix operator ?~>> {}
-postfix operator ?+>> {}
+postfix operator ?->>
+postfix operator ?~>>
+postfix operator ?+>>
 
 
 /// The ```->>``` postfix operator generates an internal routing object that
@@ -236,7 +236,7 @@ postfix operator ?+>> {}
 /// would be:
 ///
 /// ```handler->>.main.async(result: nil)```
-@inline(__always) public postfix func ->><I>(function: I -> Void) -> __BriskRoutingObjVoid<I> {
+@inline(__always) public postfix func ->><I>(function: @escaping (I) -> Void) -> __BriskRoutingObjVoid<I> {
     return __BriskRoutingObjVoid(function: function)
 }
 
@@ -245,7 +245,7 @@ postfix operator ?+>> {}
 /// would be:
 ///
 /// ```handler->>.main.async(result: nil)```
-@inline(__always) public postfix func ->><I, O>(function: I -> O) -> __BriskRoutingObjNonVoid<I,O> {
+@inline(__always) public postfix func ->><I, O>(function: @escaping (I) -> O) -> __BriskRoutingObjNonVoid<I,O> {
     return __BriskRoutingObjNonVoid(function: function)
 }
 
@@ -254,7 +254,7 @@ postfix operator ?+>> {}
 /// would be:
 ///
 /// ```handler->>.main.async(result: nil)```
-@inline(__always) public postfix func ?->><I>(function: (I -> Void)?) -> __BriskRoutingObjVoid<I>? {
+@inline(__always) public postfix func ?->><I>(function: ((I) -> Void)?) -> __BriskRoutingObjVoid<I>? {
     return (function == nil) ? nil : __BriskRoutingObjVoid(function: function!)
 }
 
@@ -263,7 +263,7 @@ postfix operator ?+>> {}
 /// would be:
 ///
 /// ```handler->>.main.async(result: nil)```
-@inline(__always) public postfix func ?->><I, O>(function: (I -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
+@inline(__always) public postfix func ?->><I, O>(function: ((I) -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
     return (function == nil) ? nil : __BriskRoutingObjNonVoid(function: function!)
 }
 
@@ -275,7 +275,7 @@ postfix operator ?+>> {}
 /// would be:
 ///
 /// ```handler~>>.async(result: nil)```
-@inline(__always) public postfix func ~>><I>(function: I -> Void) -> __BriskRoutingObjVoid<I> {
+@inline(__always) public postfix func ~>><I>(function: @escaping (I) -> Void) -> __BriskRoutingObjVoid<I> {
     return __BriskRoutingObjVoid(function: function, defaultOpQueue: backgroundQueue)
 }
 
@@ -284,7 +284,7 @@ postfix operator ?+>> {}
 /// would be:
 ///
 /// ```handler~>>.async(result: nil)```
-@inline(__always) public postfix func ~>><I, O>(function: I -> O) -> __BriskRoutingObjNonVoid<I,O> {
+@inline(__always) public postfix func ~>><I, O>(function: @escaping (I) -> O) -> __BriskRoutingObjNonVoid<I,O> {
     return __BriskRoutingObjNonVoid(function: function, defaultOpQueue: backgroundQueue)
 }
 
@@ -293,7 +293,7 @@ postfix operator ?+>> {}
 /// would be:
 ///
 /// ```handler~>>.async(result: nil)```
-@inline(__always) public postfix func ?~>><I>(function: (I -> Void)?) -> __BriskRoutingObjVoid<I>? {
+@inline(__always) public postfix func ?~>><I>(function: ((I) -> Void)?) -> __BriskRoutingObjVoid<I>? {
     return (function == nil) ? nil : __BriskRoutingObjVoid(function: function!, defaultOpQueue: backgroundQueue)
 }
 
@@ -302,7 +302,7 @@ postfix operator ?+>> {}
 /// would be:
 ///
 /// ```handler~>>.async(result: nil)```
-@inline(__always) public postfix func ?~>><I, O>(function: (I -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
+@inline(__always) public postfix func ?~>><I, O>(function: ((I) -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
     return (function == nil) ? nil : __BriskRoutingObjNonVoid(function: function!, defaultOpQueue: backgroundQueue)
 }
 
@@ -313,7 +313,7 @@ postfix operator ?+>> {}
 /// defaults to the main queue.  An example of this would be:
 ///
 /// ```handler+>>.async(result: nil)```
-@inline(__always) public postfix func +>><I>(function: I -> Void) -> __BriskRoutingObjVoid<I> {
+@inline(__always) public postfix func +>><I>(function: @escaping (I) -> Void) -> __BriskRoutingObjVoid<I> {
     return __BriskRoutingObjVoid(function: function, defaultOpQueue: mainQueue)
 }
 
@@ -321,7 +321,7 @@ postfix operator ?+>> {}
 /// defaults to the main queue.  An example of this would be:
 ///
 /// ```handler+>>.async(result: nil)```
-@inline(__always) public postfix func +>><I, O>(function: I -> O) -> __BriskRoutingObjNonVoid<I,O> {
+@inline(__always) public postfix func +>><I, O>(function: @escaping (I) -> O) -> __BriskRoutingObjNonVoid<I,O> {
     return __BriskRoutingObjNonVoid(function: function, defaultOpQueue: mainQueue)
 }
 
@@ -329,7 +329,7 @@ postfix operator ?+>> {}
 /// defaults to the main queue.  An example of this would be:
 ///
 /// ```handler+>>.async(result: nil)```
-@inline(__always) public postfix func ?+>><I>(function: (I -> Void)?) -> __BriskRoutingObjVoid<I>? {
+@inline(__always) public postfix func ?+>><I>(function: ((I) -> Void)?) -> __BriskRoutingObjVoid<I>? {
     return (function == nil) ? nil : __BriskRoutingObjVoid(function: function!, defaultOpQueue: mainQueue)
 }
 
@@ -337,7 +337,7 @@ postfix operator ?+>> {}
 /// defaults to the main queue.  An example of this would be:
 ///
 /// ```handler+>>.async(result: nil)```
-@inline(__always) public postfix func ?+>><I, O>(function: (I -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
+@inline(__always) public postfix func ?+>><I, O>(function: ((I) -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
     return (function == nil) ? nil : __BriskRoutingObjNonVoid(function: function!, defaultOpQueue: mainQueue)
 }
 
@@ -353,7 +353,7 @@ infix operator ?~>> { associativity left precedence 140 }
 /// that operates asynchronously on the global concurrent background queue.
 ///
 /// - e.g.: ```handler~>>(param: nil)```
-public func ~>><I>(lhs: I -> Void, rhs: I) -> Void {
+public func ~>><I>(lhs: @escaping (I) -> Void, rhs: I) -> Void {
     return __BriskRoutingObjVoid(function: lhs, defaultOpQueue: backgroundQueue).async(rhs)
 }
 
@@ -361,7 +361,7 @@ public func ~>><I>(lhs: I -> Void, rhs: I) -> Void {
 /// that operates asynchronously on the global concurrent background queue.
 ///
 /// - e.g.: ```handler~>>(param: nil)```
-public func ~>><I, O>(lhs: I -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
+public func ~>><I, O>(lhs: @escaping (I) -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
     return __BriskRoutingObjNonVoid(function: lhs, defaultOpQueue: backgroundQueue).async(rhs)
 }
 
@@ -387,7 +387,7 @@ public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: I) -> __BriskRou
 /// that operates asynchronously on the global concurrent background queue.
 ///
 /// - e.g.: ```handler~>>(param: nil)```
-public func ?~>><I>(lhs: (I -> Void)?, rhs: I) -> Void {
+public func ?~>><I>(lhs: ((I) -> Void)?, rhs: I) -> Void {
     if let lhs = lhs { __BriskRoutingObjVoid(function: lhs, defaultOpQueue: backgroundQueue).async(rhs) }
 }
 
@@ -395,7 +395,7 @@ public func ?~>><I>(lhs: (I -> Void)?, rhs: I) -> Void {
 /// that operates asynchronously on the global concurrent background queue.
 ///
 /// - e.g.: ```handler~>>(param: nil)```
-public func ?~>><I, O>(lhs: (I -> O)?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>? {
+public func ?~>><I, O>(lhs: ((I) -> O)?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>? {
     return (lhs == nil) ? nil : __BriskRoutingObjNonVoid(function: lhs!, defaultOpQueue: backgroundQueue).async(rhs)
 }
 
@@ -423,7 +423,7 @@ public func ?~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: I) -> __BriskR
 /// that operates asynchronously on the main queue.
 ///
 /// - e.g.: ```handler+>>(param: nil)```
-public func +>><I>(lhs: I -> Void, rhs: I) -> Void {
+public func +>><I>(lhs: @escaping (I) -> Void, rhs: I) -> Void {
     return __BriskRoutingObjVoid(function: lhs, defaultOpQueue: mainQueue).async(rhs)
 }
 
@@ -431,7 +431,7 @@ public func +>><I>(lhs: I -> Void, rhs: I) -> Void {
 /// that operates asynchronously on the main queue.
 ///
 /// - e.g.: ```handler+>>(param: nil)```
-public func +>><I, O>(lhs: I -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
+public func +>><I, O>(lhs: @escaping (I) -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
     return __BriskRoutingObjNonVoid(function: lhs, defaultOpQueue: mainQueue).async(rhs)
 }
 
@@ -439,7 +439,7 @@ public func +>><I, O>(lhs: I -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
 /// that operates asynchronously on the main queue.
 ///
 /// - e.g.: ```handler+>>(param: nil)```
-public func ?+>><I>(lhs: (I -> Void)?, rhs: I) -> Void {
+public func ?+>><I>(lhs: ((I) -> Void)?, rhs: I) -> Void {
     if let lhs = lhs { __BriskRoutingObjVoid(function: lhs, defaultOpQueue: mainQueue).async(rhs) }
 }
 
@@ -447,7 +447,7 @@ public func ?+>><I>(lhs: (I -> Void)?, rhs: I) -> Void {
 /// that operates asynchronously on the main queue.
 ///
 /// - e.g.: ```handler+>>(param: nil)```
-public func ?+>><I, O>(lhs: (I -> O)?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>? {
+public func ?+>><I, O>(lhs: ((I) -> O)?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>? {
     return (lhs == nil) ? nil : __BriskRoutingObjNonVoid(function: lhs!, defaultOpQueue: mainQueue).async(rhs)
 }
 
@@ -460,7 +460,7 @@ public func ?+>><I, O>(lhs: (I -> O)?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>
 ///
 /// - e.g.: ```handler +>> (param: nil) ~>> myQueue ~>> { result in ... }```
 /// - e.g.: ```handler ~>> myQueue ~>> (param: nil) ~>> myOtherQueue ~>> { result in ... }```
-public func ~>><I>(lhs: I -> Void, rhs: dispatch_queue_t) -> __BriskRoutingObjVoid<I> {
+public func ~>><I>(lhs: @escaping (I) -> Void, rhs: DispatchQueue) -> __BriskRoutingObjVoid<I> {
     return __BriskRoutingObjVoid(function: lhs, defaultOpQueue: rhs)
 }
 
@@ -469,7 +469,7 @@ public func ~>><I>(lhs: I -> Void, rhs: dispatch_queue_t) -> __BriskRoutingObjVo
 ///
 /// - e.g.: ```handler +>> (param: nil) ~>> myQueue ~>> { result in ... }```
 /// - e.g.: ```handler ~>> myQueue ~>> (param: nil) ~>> myOtherQueue ~>> { result in ... }```
-public func ~>><I, O>(lhs: I -> O, rhs: dispatch_queue_t) -> __BriskRoutingObjNonVoid<I, O> {
+public func ~>><I, O>(lhs: @escaping (I) -> O, rhs: DispatchQueue) -> __BriskRoutingObjNonVoid<I, O> {
     return __BriskRoutingObjNonVoid(function: lhs, defaultOpQueue: rhs)
 }
 
@@ -480,7 +480,7 @@ public func ~>><I, O>(lhs: I -> O, rhs: dispatch_queue_t) -> __BriskRoutingObjNo
 ///
 /// - e.g.: ```handler +>> (param: nil) ~>> myQueue ~>> { result in ... }```
 /// - e.g.: ```handler ~>> myQueue ~>> (param: nil) ~>> myOtherQueue ~>> { result in ... }```
-public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: dispatch_queue_t) -> __BriskRoutingObjNonVoid<I, O> {
+public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: DispatchQueue) -> __BriskRoutingObjNonVoid<I, O> {
     lhs.handlerQueue = rhs
     return lhs
 }
@@ -490,7 +490,7 @@ public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: dispatch_queue_t
 ///
 /// - e.g.: ```handler +>> (param: nil) ~>> myQueue ~>> { result in ... }```
 /// - e.g.: ```handler ~>> myQueue ~>> (param: nil) ~>> myOtherQueue ~>> { result in ... }```
-public func ?~>><I>(lhs: (I -> Void)?, rhs: dispatch_queue_t) -> __BriskRoutingObjVoid<I>? {
+public func ?~>><I>(lhs: ((I) -> Void)?, rhs: DispatchQueue) -> __BriskRoutingObjVoid<I>? {
     return (lhs == nil) ? nil : __BriskRoutingObjVoid(function: lhs!, defaultOpQueue: rhs)
 }
 
@@ -499,7 +499,7 @@ public func ?~>><I>(lhs: (I -> Void)?, rhs: dispatch_queue_t) -> __BriskRoutingO
 ///
 /// - e.g.: ```handler +>> (param: nil) ~>> myQueue ~>> { result in ... }```
 /// - e.g.: ```handler ~>> myQueue ~>> (param: nil) ~>> myOtherQueue ~>> { result in ... }```
-public func ?~>><I, O>(lhs: (I -> O)?, rhs: dispatch_queue_t) -> __BriskRoutingObjNonVoid<I, O>? {
+public func ?~>><I, O>(lhs: ((I) -> O)?, rhs: DispatchQueue) -> __BriskRoutingObjNonVoid<I, O>? {
     return (lhs == nil) ? nil : __BriskRoutingObjNonVoid(function: lhs!, defaultOpQueue: rhs)
 }
 
@@ -510,7 +510,7 @@ public func ?~>><I, O>(lhs: (I -> O)?, rhs: dispatch_queue_t) -> __BriskRoutingO
 ///
 /// - e.g.: ```handler +>> (param: nil) ~>> myQueue ~>> { result in ... }```
 /// - e.g.: ```handler ~>> myQueue ~>> (param: nil) ~>> myOtherQueue ~>> { result in ... }```
-public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: dispatch_queue_t) -> __BriskRoutingObjNonVoid<I, O>? {
+public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: DispatchQueue) -> __BriskRoutingObjNonVoid<I, O>? {
     lhs?.handlerQueue = rhs
     return lhs
 }
@@ -523,7 +523,7 @@ public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: dispatch_queue_
 /// concurrent background queue by default if none was specified.
 ///
 /// -e.g.: ```handler~>>(param: nil) ~>> { result in ... }```
-public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: O -> Void) {
+public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: @escaping (O) -> Void) {
     if lhs.handlerQueue == nil { lhs.handlerQueue = backgroundQueue }
     lhs.processAsyncHandler(rhs)
 }
@@ -532,7 +532,7 @@ public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: O -> Void) {
 /// to a completion handler that is executed on the main queue.
 ///
 /// -e.g.: ```handler~>>(param: nil) +>> { result in ... }```
-public func +>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: O -> Void) {
+public func +>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: @escaping (O) -> Void) {
     lhs.handlerQueue = mainQueue
     lhs.processAsyncHandler(rhs)
 }
@@ -542,7 +542,7 @@ public func +>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: O -> Void) {
 /// concurrent background queue by default if none was specified.
 ///
 /// -e.g.: ```handler~>>(param: nil) ~>> { result in ... }```
-public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: O -> Void) {
+public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: @escaping (O) -> Void) {
     if let lhs = lhs {
         if lhs.handlerQueue == nil { lhs.handlerQueue = backgroundQueue }
         lhs.processAsyncHandler(rhs)
@@ -553,7 +553,7 @@ public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: O -> Void) {
 /// to a completion handler that is executed on the main queue.
 ///
 /// -e.g.: ```handler~>>(param: nil) +>> { result in ... }```
-public func +>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: O -> Void) {
+public func +>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: @escaping (O) -> Void) {
     lhs?.handlerQueue = mainQueue
     lhs?.processAsyncHandler(rhs)
 }

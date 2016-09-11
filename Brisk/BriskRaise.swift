@@ -25,7 +25,7 @@
 
 import Foundation
 
-@noreturn internal func brisk_raise(reason: String) {
-    NSException(name: "Brisk Exception", reason: reason, userInfo: nil).raise()
+internal func brisk_raise(_ reason: String) -> Never  {
+    NSException(name: NSExceptionName(rawValue: "Brisk Exception"), reason: reason, userInfo: nil).raise()
     fatalError("Brisk usage exceptions are fatal errors.")
 }

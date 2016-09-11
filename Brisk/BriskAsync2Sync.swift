@@ -30,9 +30,9 @@ import Foundation
 // let .. = <<+{ func(i, handler: $0) }              call func on main queue
 // let .. = <<~myQueue ~~~ { func(i, handler: $0) }   call func on specified queue
 
-prefix operator <<- {}
-prefix operator <<~ {}
-prefix operator <<+ {}
+prefix operator <<-
+prefix operator <<~
+prefix operator <<+
 infix  operator ~~~ { precedence 95 }
 
 
@@ -40,7 +40,7 @@ infix  operator ~~~ { precedence 95 }
 /// syntax:
 ///
 /// - e.g.: let x = <<~myQueue ~~~ { func(i, handler: $0) }
-@inline(__always) public prefix func <<~(q: dispatch_queue_t) -> dispatch_queue_t {
+@inline(__always) public prefix func <<~(q: DispatchQueue) -> DispatchQueue {
     return q
 }
 
@@ -49,7 +49,7 @@ infix  operator ~~~ { precedence 95 }
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<-{ func(i, callback: $0)``` }
-public prefix func <<-<O>(@noescape operation: (callbackHandler: (param: O) -> ()) -> ()) -> O {
+public prefix func <<-<O>(operation: (_ callbackHandler: (_ param: O) -> ()) -> ()) -> O {
     
     // Our gating mechanism
     let gate = BriskGate()
@@ -57,12 +57,12 @@ public prefix func <<-<O>(@noescape operation: (callbackHandler: (param: O) -> (
     // This value will eventually hold the response from the async function
     var handledResponse: O?
     
-    let theHandler: (p: O) -> () = { responseFromCallback in
+    let theHandler: (_ p: O) -> () = { responseFromCallback in
         handledResponse = responseFromCallback
         gate.signal()
     }
     
-    operation(callbackHandler: theHandler)
+    operation(theHandler)
     gate.wait()
     
     // It's ok to use ! -- theoretically we are garanteed that handledResponse
@@ -71,8 +71,8 @@ public prefix func <<-<O>(@noescape operation: (callbackHandler: (param: O) -> (
 }
 
 /// Using a generic handler for the non-noescape versions
-@inline(__always) private func processAsync2Sync<O>(operation: (callbackHandler: (param: O) -> ()) -> (),
-                                                        queue: dispatch_queue_t) -> O {
+@inline(__always) private func processAsync2Sync<O>(_ operation: @escaping (_ callbackHandler: (_ param: O) -> ()) -> (),
+                                                          queue: DispatchQueue) -> O {
     
     // Our gating mechanism
     let gate = BriskGate()
@@ -80,13 +80,13 @@ public prefix func <<-<O>(@noescape operation: (callbackHandler: (param: O) -> (
     // This value will eventually hold the response from the async function
     var handledResponse: O?
     
-    let theHandler: (p: O) -> () = { responseFromCallback in
+    let theHandler: (_ p: O) -> () = { responseFromCallback in
         handledResponse = responseFromCallback
         gate.signal()
     }
     
-    dispatch_async(queue) {
-        operation(callbackHandler: theHandler)
+    queue.async {
+        operation(theHandler)
     }
     
     gate.wait()
@@ -102,7 +102,7 @@ public prefix func <<-<O>(@noescape operation: (callbackHandler: (param: O) -> (
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<~{ func(i, callback: $0)``` }
-public prefix func <<~<O>(operation: (callbackHandler: (param: O) -> ()) -> ()) -> O {
+public prefix func <<~<O>(operation: @escaping (_ callbackHandler: (_ param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(operation, queue: backgroundQueue)
 }
 
@@ -112,7 +112,7 @@ public prefix func <<~<O>(operation: (callbackHandler: (param: O) -> ()) -> ()) 
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<+{ func(i, callback: $0)``` }
-public prefix func <<+<O>(operation: (callbackHandler: (param: O) -> ()) -> ()) -> O {
+public prefix func <<+<O>(operation: @escaping (_ callbackHandler: (_ param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(operation, queue: mainQueue)
 }
 
@@ -122,7 +122,7 @@ public prefix func <<+<O>(operation: (callbackHandler: (param: O) -> ()) -> ()) 
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<~myQueue ~~~ { func(i, callback: $0)``` }
-public func ~~~<O>(lhs: dispatch_queue_t, rhs: (callbackHandler: (param: O) -> ()) -> ()) -> O {
+public func ~~~<O>(lhs: DispatchQueue, rhs: @escaping (_ callbackHandler: (_ param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(rhs, queue: lhs)
 }
 
