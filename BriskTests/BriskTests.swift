@@ -26,11 +26,12 @@
 import XCTest
 @testable import Brisk
 
-private let mainQueueKey = UnsafeMutableRawPointer(allocatingCapacity: 1)
-private let mainQueueValue = UnsafeMutableRawPointer(allocatingCapacity: 1)
+
+private let mainQueueKey        = DispatchSpecificKey<Int>()
+private let mainQueueValue: Int = 31337
 
 private func onMainQueue() -> Bool {
-    return DispatchQueue.getSpecific(mainQueueKey) == mainQueueValue
+    return DispatchQueue.main.getSpecific(key: mainQueueKey) == mainQueueValue
 }
 
 private func onMainThread() -> Bool {

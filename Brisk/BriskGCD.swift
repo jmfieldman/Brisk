@@ -140,9 +140,9 @@ private var queueLock:   NSLock                     = NSLock()
 ///
 /// - returns: The dispatch_source_t that represents the timer.
 ///            You must eventually cancel this with dispatch_source_cancel()
-@inline(__always) public func dispatch_every(_ interval: TimeInterval,
-                                              _ onQueue: DispatchQueue,
-                                                _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
+@discardableResult @inline(__always) public func dispatch_every(_ interval: TimeInterval,
+                                                                 _ onQueue: DispatchQueue,
+                                                                   _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
     
     let timer = DispatchSource.makeTimerSource(flags: DispatchSource.TimerFlags(rawValue: UInt(0)), queue: onQueue)
     timer.setEventHandler {
@@ -166,9 +166,9 @@ private var queueLock:   NSLock                     = NSLock()
 ///
 /// - returns: The dispatch_source_t that represents the timer.
 ///            You must eventually cancel this with dispatch_source_cancel()
-@inline(__always) public func dispatch_every_exact(_ interval: TimeInterval,
-                                                    _ onQueue: DispatchQueue,
-                                                      _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
+@discardableResult @inline(__always) public func dispatch_every_exact(_ interval: TimeInterval,
+                                                                       _ onQueue: DispatchQueue,
+                                                                         _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
     
     let timer = DispatchSource.makeTimerSource(flags: DispatchSource.TimerFlags(rawValue: UInt(0)), queue: onQueue)
     timer.setEventHandler {
@@ -214,8 +214,8 @@ private var queueLock:   NSLock                     = NSLock()
 ///
 /// - returns: The dispatch_source_t that represents the timer.
 ///            You must eventually cancel this with dispatch_source_cancel()
-@inline(__always) public func dispatch_main_every(_ interval: TimeInterval,
-                                                     _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
+@discardableResult @inline(__always) public func dispatch_main_every(_ interval: TimeInterval,
+                                                                        _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
     
     return dispatch_every(interval, DispatchQueue.main, block)
 }
@@ -231,8 +231,8 @@ private var queueLock:   NSLock                     = NSLock()
 ///
 /// - returns: The dispatch_source_t that represents the timer.
 ///            You must eventually cancel this with dispatch_source_cancel()
-@inline(__always) public func dispatch_main_every_exact(_ interval: TimeInterval,
-                                                           _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
+@discardableResult @inline(__always) public func dispatch_main_every_exact(_ interval: TimeInterval,
+                                                                              _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
     
     return dispatch_every_exact(interval, DispatchQueue.main, block)
 }

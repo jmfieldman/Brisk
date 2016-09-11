@@ -63,7 +63,7 @@ internal class AsyncSpin : Spin {
     }
     
     func wait() {
-        group.wait(timeout: DispatchTime.distantFuture)
+        _ = group.wait(timeout: DispatchTime.distantFuture)
     }
     
 }
