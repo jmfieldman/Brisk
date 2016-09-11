@@ -49,6 +49,7 @@
 		356AFC7F1D5E63D100D18479 /* BriskAsync2Sync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskAsync2Sync.swift; sourceTree = "<group>"; };
 		356AFC811D5E8CAC00D18479 /* Spin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spin.swift; sourceTree = "<group>"; };
 		3585AB7C1D845A550063299C /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = SOURCE_ROOT; };
+		3585ABB01D85FE8F0063299C /* README_SWIFT2.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README_SWIFT2.md; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +95,7 @@
 			children = (
 				3585AB7C1D845A550063299C /* .travis.yml */,
 				35057D7E1D6132A8004BBF6D /* README.md */,
+				3585ABB01D85FE8F0063299C /* README_SWIFT2.md */,
 				35057D7A1D60EFEE004BBF6D /* CHANGELOG.md */,
 				35057D7B1D60EFEE004BBF6D /* CONTRIBUTORS.md */,
 				35057D781D60EE81004BBF6D /* Brisk.podspec */,
