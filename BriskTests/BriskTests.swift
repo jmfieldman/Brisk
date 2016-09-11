@@ -31,7 +31,7 @@ private let mainQueueKey        = DispatchSpecificKey<Int>()
 private let mainQueueValue: Int = 31337
 
 private func onMainQueue() -> Bool {
-    return DispatchQueue.main.getSpecific(key: mainQueueKey) == mainQueueValue
+    return DispatchQueue.getSpecific(key: mainQueueKey) == mainQueueValue
 }
 
 private func onMainThread() -> Bool {
@@ -68,8 +68,8 @@ class BriskTests: XCTestCase {
         
         spin.start()
         dispatch_main_async {
-            spin.done()
             qPassed = onMainEverything()
+            spin.done()
         }
         spin.wait()
         
@@ -83,8 +83,8 @@ class BriskTests: XCTestCase {
         
         spin.start()
         dispatch_bg_async {
-            spin.done()
             qPassed = !onMainQueue()
+            spin.done()
         }
         spin.wait()
         
@@ -102,8 +102,8 @@ class BriskTests: XCTestCase {
         spin.start()
         dispatch_main_after(0.5) {
             time2 = CFAbsoluteTimeGetCurrent()
-            spin.done()
             qPassed = onMainEverything()
+            spin.done()
         }
         spin.wait()
     
@@ -121,8 +121,8 @@ class BriskTests: XCTestCase {
         spin.start()
         dispatch_after(0.5, backgroundQueue) {
             time2 = CFAbsoluteTimeGetCurrent()
-            spin.done()
             qPassed = !onMainQueue()
+            spin.done()
         }
         spin.wait()
         
