@@ -33,7 +33,14 @@ import Foundation
 prefix operator <<-
 prefix operator <<~
 prefix operator <<+
-infix  operator ~~~ { precedence 95 }
+
+/* -- old precendence = 95 -- */
+precedencegroup QueueRedirectionPrecendence {
+    higherThan: AssignmentPrecedence
+    lowerThan:  TernaryPrecedence
+}
+
+infix  operator ~~~ : QueueRedirectionPrecendence
 
 
 /// Returns the queue this prefix is applied to.  This is used to prettify the

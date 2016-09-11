@@ -35,7 +35,7 @@ private let kInexactTimerLeeway = UInt64(0.01 * Double(NSEC_PER_SEC))
 internal let mainQueue = DispatchQueue.main
 
 /// The generic concurrent background queue
-internal let backgroundQueue = DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default)
+internal let backgroundQueue = DispatchQueue.global(qos: .default)
 
 
 // MARK: - Dispatch Helpers
@@ -126,7 +126,7 @@ private var queueLock:   NSLock                     = NSLock()
         block()
     }
     
-    timer.setTimer(start: DispatchTime.now() + Double(Int64(seconds * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), interval: DispatchTime.distantFuture, leeway: 0)
+    timer.scheduleOneshot(deadline: DispatchTime.now() + seconds, leeway: DispatchTimeInterval.microseconds(0))
     timer.resume()
 }
 
@@ -142,17 +142,16 @@ private var queueLock:   NSLock                     = NSLock()
 ///            You must eventually cancel this with dispatch_source_cancel()
 @inline(__always) public func dispatch_every(_ interval: TimeInterval,
                                               _ onQueue: DispatchQueue,
-                                                _ block: @escaping ((DispatchSource) -> ())) -> DispatchSource {
+                                                _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
     
     let timer = DispatchSource.makeTimerSource(flags: DispatchSource.TimerFlags(rawValue: UInt(0)), queue: onQueue)
     timer.setEventHandler {
-        timer.setTimer(start: DispatchTime.now() + Double(Int64(interval * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), interval: DispatchTime.distantFuture, leeway: kInexactTimerLeeway)
-        block(timer as! DispatchSource)
+        block(timer)
     }
     
-    timer.setTimer(start: DispatchTime.now() + Double(Int64(interval * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), interval: DispatchTime.distantFuture, leeway: kInexactTimerLeeway)
+    timer.scheduleRepeating(deadline: DispatchTime.now() + interval, interval: interval)
     timer.resume()
-    return timer as! DispatchSource
+    return timer
 }
 
 
@@ -169,15 +168,14 @@ private var queueLock:   NSLock                     = NSLock()
 ///            You must eventually cancel this with dispatch_source_cancel()
 @inline(__always) public func dispatch_every_exact(_ interval: TimeInterval,
                                                     _ onQueue: DispatchQueue,
-                                                      _ block: @escaping ((DispatchSource) -> ())) -> DispatchSource {
+                                                      _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
     
     let timer = DispatchSource.makeTimerSource(flags: DispatchSource.TimerFlags(rawValue: UInt(0)), queue: onQueue)
     timer.setEventHandler {
-        timer.setTimer(start: DispatchTime.now() + Double(Int64(interval * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), interval: DispatchTime.distantFuture, leeway: 0)
         block(timer as! DispatchSource)
     }
     
-    timer.setTimer(start: DispatchTime.now() + Double(Int64(interval * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), interval: DispatchTime.distantFuture, leeway: 0)
+    timer.scheduleRepeating(deadline: DispatchTime.now() + interval, interval: interval, leeway: DispatchTimeInterval.microseconds(0))
     timer.resume()
     return timer as! DispatchSource
 }
@@ -217,9 +215,9 @@ private var queueLock:   NSLock                     = NSLock()
 /// - returns: The dispatch_source_t that represents the timer.
 ///            You must eventually cancel this with dispatch_source_cancel()
 @inline(__always) public func dispatch_main_every(_ interval: TimeInterval,
-                                                     _ block: @escaping ((DispatchSource) -> ())) -> DispatchSource {
+                                                     _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
     
-    return dispatch_every(interval, mainQueue, block)
+    return dispatch_every(interval, DispatchQueue.main, block)
 }
 
 
@@ -234,16 +232,16 @@ private var queueLock:   NSLock                     = NSLock()
 /// - returns: The dispatch_source_t that represents the timer.
 ///            You must eventually cancel this with dispatch_source_cancel()
 @inline(__always) public func dispatch_main_every_exact(_ interval: TimeInterval,
-                                                           _ block: @escaping ((DispatchSource) -> ())) -> DispatchSource {
+                                                           _ block: @escaping ((DispatchSourceTimer) -> ())) -> DispatchSourceTimer {
     
-    return dispatch_every_exact(interval, mainQueue, block)
+    return dispatch_every_exact(interval, DispatchQueue.main, block)
 }
 
 
 
 // Data Structures for dispatch_once_after
-private var operationTimerForId: [String : DispatchSource] = [:]
-private var operationTimerLock:   NSLock                   = NSLock()
+private var operationTimerForId: [String : DispatchSourceTimer] = [:]
+private var operationTimerLock:   NSLock                        = NSLock()
 
 /// Queue up an action to take place on an queue in the future, but make sure it only triggers once.
 /// This allows you to queue up the same operation several times and not worry about
@@ -254,8 +252,10 @@ public func dispatch_once_after(_ after: TimeInterval,
                                   block: @escaping () -> ()) {
     
     // Check if we already have a timer source for this operation ID
-    if let existingTimer: DispatchSource = synchronized(operationTimerLock, block: { return operationTimerForId[operationId] }) {
-        existingTimer.setTimer(start: DispatchTime.now() + Double(Int64(after * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), interval: DispatchTime.distantFuture, leeway: NSEC_PER_MSEC)
+    if let existingTimer: DispatchSourceTimer = synchronized(operationTimerLock, block: { return operationTimerForId[operationId] }) {
+        existingTimer.cancel()
+        existingTimer.scheduleOneshot(deadline: DispatchTime.now() + after)
+        existingTimer.resume()
         return
     }
     
@@ -273,7 +273,7 @@ public func dispatch_once_after(_ after: TimeInterval,
     
     // Set it!
     synchronized(operationTimerLock) { operationTimerForId[operationId] = timer }
-    timer.setTimer(start: DispatchTime.now() + Double(Int64(after * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), interval: DispatchTime.distantFuture, leeway: NSEC_PER_MSEC)
+    timer.scheduleOneshot(deadline: DispatchTime.now() + after)
     timer.resume()
 }
 

@@ -125,7 +125,7 @@ public class __BriskRoutingObj<I, O> {
                 self.response = self.wrappedFunction(i)
                 self.dispatchGroup.leave()
             }
-            self.dispatchGroup.wait(timeout: DispatchTime.distantFuture)
+            _ = self.dispatchGroup.wait(timeout: DispatchTime.distantFuture)
             return self.response! // Will be set in the async call above
         }
     }
@@ -138,7 +138,7 @@ public class __BriskRoutingObj<I, O> {
         }
         
         backgroundQueue.async {
-            self.dispatchGroup.wait(timeout: DispatchTime.distantFuture)
+            _ = self.dispatchGroup.wait(timeout: DispatchTime.distantFuture)
             hQ.async {
                 handler(self.response!) // Will be set in the async call before wait completes
             }
@@ -342,11 +342,17 @@ postfix operator ?+>>
 }
 
 
+/* -- old precendence = 140 -- */
+precedencegroup AsyncRedirectPrecendence {
+    higherThan: RangeFormationPrecedence
+    lowerThan:  MultiplicationPrecedence
+    associativity: left
+}
 
-infix operator +>>  { associativity left precedence 140 }
-infix operator ~>>  { associativity left precedence 140 }
-infix operator ?+>> { associativity left precedence 140 }
-infix operator ?~>> { associativity left precedence 140 }
+infix operator +>>  : AsyncRedirectPrecendence
+infix operator ~>>  : AsyncRedirectPrecendence
+infix operator ?+>> : AsyncRedirectPrecendence
+infix operator ?~>> : AsyncRedirectPrecendence
 
 
 /// The ```~>>``` infix operator allows for shorthand creation of a routing object
