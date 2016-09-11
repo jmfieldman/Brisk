@@ -61,7 +61,7 @@ internal let backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY
 
 // Data Structures for dispatch_async
 private var queueForId: [String : dispatch_queue_t] = [:]
-private var queueLock:   OSSpinLock                 = OS_SPINLOCK_INIT
+private var queueLock:   NSLock                     = NSLock()
 
 /// Executes a block on an ad-hoc named serial dispatch queue.  If a queue was already created
 /// with the provided name, it is reused.  This allows you to dispatch code on serial queues
@@ -70,12 +70,12 @@ private var queueLock:   OSSpinLock                 = OS_SPINLOCK_INIT
 ///         safer from a coding perspective to use a pre-instantiated queue variable.
 @inline(__always) public func dispatch_async(queueName: String, block: () -> ()) {
     
-    if let queue: dispatch_queue_t = synchronized(&queueLock, block: { return queueForId[queueName] }) {
+    if let queue: dispatch_queue_t = synchronized(queueLock, block: { return queueForId[queueName] }) {
         dispatch_async(queue, block)
         return
     }
     
-    synchronized(&queueLock) {
+    synchronized(queueLock) {
         let queue = dispatch_queue_create(queueName, nil)
         queueForId[queueName] = queue
         dispatch_async(queue, block)
@@ -243,7 +243,7 @@ private var queueLock:   OSSpinLock                 = OS_SPINLOCK_INIT
 
 // Data Structures for dispatch_once_after
 private var operationTimerForId: [String : dispatch_source_t] = [:]
-private var operationTimerLock:   OSSpinLock                  = OS_SPINLOCK_INIT
+private var operationTimerLock:   NSLock                      = NSLock()
 
 /// Queue up an action to take place on an queue in the future, but make sure it only triggers once.
 /// This allows you to queue up the same operation several times and not worry about
@@ -254,7 +254,7 @@ public func dispatch_once_after(after: NSTimeInterval,
                                 block: () -> ()) {
     
     // Check if we already have a timer source for this operation ID
-    if let existingTimer: dispatch_source_t = synchronized(&operationTimerLock, block: { return operationTimerForId[operationId] }) {
+    if let existingTimer: dispatch_source_t = synchronized(operationTimerLock, block: { return operationTimerForId[operationId] }) {
         dispatch_source_set_timer(existingTimer, dispatch_time(DISPATCH_TIME_NOW, Int64(after * Double(NSEC_PER_SEC))), DISPATCH_TIME_FOREVER, NSEC_PER_MSEC)
         return
     }
@@ -264,7 +264,7 @@ public func dispatch_once_after(after: NSTimeInterval,
     dispatch_source_set_event_handler(timer) {
         
         // one shot timer -- remove from dictionary
-        synchronized(&operationTimerLock) {
+        synchronized(operationTimerLock) {
             operationTimerForId.removeValueForKey(operationId)
             dispatch_source_cancel(timer)
         }
@@ -272,7 +272,7 @@ public func dispatch_once_after(after: NSTimeInterval,
     }
     
     // Set it!
-    synchronized(&operationTimerLock) { operationTimerForId[operationId] = timer }
+    synchronized(operationTimerLock) { operationTimerForId[operationId] = timer }
     dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, Int64(after * Double(NSEC_PER_SEC))), DISPATCH_TIME_FOREVER, NSEC_PER_MSEC)
     dispatch_resume(timer)
 }

@@ -112,19 +112,19 @@ func throwAtClosestPokemonWithin(within: Double,
     dispatch_bg_async {
 
         // Step 1
-        let (pokemon, error) <<+{ findClosestPokemonWithin(within, completionHandler: $0) }
+        let (pokemon, error) = <<+{ findClosestPokemonWithin(within, completionHandler: $0) }
         guard let p = pokemon where error == nil else {
             return completionHandler +>> (success: false, error: error)
         }
 
         // Step 2
-        let (number, error2) <<+{ countPokeballs($0) }
-        guard let n = number where error == nil else {
+        let (number, error2) = <<+{ countPokeballs($0) }
+        guard let n = number where error2 == nil else {
             return completionHandler +>> (success: false, error: error2)
         }
 
         // Step 3
-        let (success, error3) <<+{ throwPokeballAtPokemon(p, completionHandler: $0) }
+        let (success, error3) = <<+{ throwPokeballAtPokemon(p, completionHandler: $0) }
         completionHandler +>> (success: success, error: error3)
     }
 }
