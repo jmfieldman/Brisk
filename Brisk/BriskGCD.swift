@@ -253,9 +253,7 @@ public func dispatch_once_after(_ after: TimeInterval,
     
     // Check if we already have a timer source for this operation ID
     if let existingTimer: DispatchSourceTimer = synchronized(operationTimerLock, block: { return operationTimerForId[operationId] }) {
-        existingTimer.cancel()
-        existingTimer.scheduleOneshot(deadline: DispatchTime.now() + after)
-        existingTimer.resume()
+        existingTimer.scheduleOneshot(deadline: DispatchTime.now() + after)        
         return
     }
     

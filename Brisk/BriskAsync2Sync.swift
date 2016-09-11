@@ -56,7 +56,7 @@ infix  operator ~~~ : QueueRedirectionPrecendence
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<-{ func(i, callback: $0)``` }
-public prefix func <<-<O>(operation: (_ callbackHandler: (_ param: O) -> ()) -> ()) -> O {
+public prefix func <<-<O>(operation: (_ callbackHandler: @escaping (_ param: O) -> ()) -> ()) -> O {
     
     // Our gating mechanism
     let gate = BriskGate()
@@ -78,7 +78,7 @@ public prefix func <<-<O>(operation: (_ callbackHandler: (_ param: O) -> ()) -> 
 }
 
 /// Using a generic handler for the non-noescape versions
-@inline(__always) private func processAsync2Sync<O>(_ operation: @escaping (_ callbackHandler: (_ param: O) -> ()) -> (),
+@inline(__always) private func processAsync2Sync<O>(_ operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> (),
                                                           queue: DispatchQueue) -> O {
     
     // Our gating mechanism
@@ -109,7 +109,7 @@ public prefix func <<-<O>(operation: (_ callbackHandler: (_ param: O) -> ()) -> 
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<~{ func(i, callback: $0)``` }
-public prefix func <<~<O>(operation: @escaping (_ callbackHandler: (_ param: O) -> ()) -> ()) -> O {
+public prefix func <<~<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(operation, queue: backgroundQueue)
 }
 
@@ -119,7 +119,7 @@ public prefix func <<~<O>(operation: @escaping (_ callbackHandler: (_ param: O) 
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<+{ func(i, callback: $0)``` }
-public prefix func <<+<O>(operation: @escaping (_ callbackHandler: (_ param: O) -> ()) -> ()) -> O {
+public prefix func <<+<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(operation, queue: mainQueue)
 }
 
@@ -129,7 +129,7 @@ public prefix func <<+<O>(operation: @escaping (_ callbackHandler: (_ param: O) 
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<~myQueue ~~~ { func(i, callback: $0)``` }
-public func ~~~<O>(lhs: DispatchQueue, rhs: @escaping (_ callbackHandler: (_ param: O) -> ()) -> ()) -> O {
+public func ~~~<O>(lhs: DispatchQueue, rhs: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(rhs, queue: lhs)
 }
 

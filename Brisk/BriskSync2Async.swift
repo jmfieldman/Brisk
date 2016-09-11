@@ -367,7 +367,7 @@ public func ~>><I>(lhs: @escaping (I) -> Void, rhs: I) -> Void {
 /// that operates asynchronously on the global concurrent background queue.
 ///
 /// - e.g.: ```handler~>>(param: nil)```
-public func ~>><I, O>(lhs: @escaping (I) -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
+@discardableResult public func ~>><I, O>(lhs: @escaping (I) -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
     return __BriskRoutingObjNonVoid(function: lhs, defaultOpQueue: backgroundQueue).async(rhs)
 }
 
@@ -383,7 +383,7 @@ public func ~>><I>(lhs: __BriskRoutingObjVoid<I>, rhs: I) -> Void {
 /// on its defined operation queue.
 ///
 /// - e.g.: ```handler~>>(param: nil)```
-public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
+@discardableResult public func ~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
     return lhs.async(rhs)
 }
 
@@ -401,7 +401,7 @@ public func ?~>><I>(lhs: ((I) -> Void)?, rhs: I) -> Void {
 /// that operates asynchronously on the global concurrent background queue.
 ///
 /// - e.g.: ```handler~>>(param: nil)```
-public func ?~>><I, O>(lhs: ((I) -> O)?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>? {
+@discardableResult public func ?~>><I, O>(lhs: ((I) -> O)?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>? {
     return (lhs == nil) ? nil : __BriskRoutingObjNonVoid(function: lhs!, defaultOpQueue: backgroundQueue).async(rhs)
 }
 
@@ -417,7 +417,7 @@ public func ?~>><I>(lhs: __BriskRoutingObjVoid<I>?, rhs: I) -> Void {
 /// on its defined operation queue.
 ///
 /// - e.g.: ```handler~>>(param: nil)```
-public func ?~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>? {
+@discardableResult public func ?~>><I, O>(lhs: __BriskRoutingObjNonVoid<I, O>?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>? {
     return lhs?.async(rhs)
 }
 
@@ -437,7 +437,7 @@ public func +>><I>(lhs: @escaping (I) -> Void, rhs: I) -> Void {
 /// that operates asynchronously on the main queue.
 ///
 /// - e.g.: ```handler+>>(param: nil)```
-public func +>><I, O>(lhs: @escaping (I) -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
+@discardableResult public func +>><I, O>(lhs: @escaping (I) -> O, rhs: I) -> __BriskRoutingObjNonVoid<I, O> {
     return __BriskRoutingObjNonVoid(function: lhs, defaultOpQueue: mainQueue).async(rhs)
 }
 
@@ -453,7 +453,7 @@ public func ?+>><I>(lhs: ((I) -> Void)?, rhs: I) -> Void {
 /// that operates asynchronously on the main queue.
 ///
 /// - e.g.: ```handler+>>(param: nil)```
-public func ?+>><I, O>(lhs: ((I) -> O)?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>? {
+@discardableResult public func ?+>><I, O>(lhs: ((I) -> O)?, rhs: I) -> __BriskRoutingObjNonVoid<I, O>? {
     return (lhs == nil) ? nil : __BriskRoutingObjNonVoid(function: lhs!, defaultOpQueue: mainQueue).async(rhs)
 }
 

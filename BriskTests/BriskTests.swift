@@ -604,7 +604,7 @@ class BriskTests: XCTestCase {
     
     func makeSureThisCompiles(_ p: Int, completionHandler: ((_ i: Int) -> Int)?) {
         completionHandler ?+>> (3) +>> { i in }
-        completionHandler?+>>.async(3)
+        completionHandler?+>>.async(3) +>> { i in }
         let _: Int? = completionHandler?~>>.sync(3)
     }
     
@@ -620,7 +620,7 @@ class BriskTests: XCTestCase {
 	}
 	
 	func asyncTest_CallsOnMainReturnsIforBoth(_ i: Int, handler: @escaping (_ i: Int, _ s: String) -> Void) {
-		dispatch_main_async { handler(i: i, s: "\(i)") }
+		dispatch_main_async { handler(i, "\(i)") }
 	}
 	
 	// MARK: - Sync Functions to Test With
