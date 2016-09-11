@@ -57,7 +57,7 @@ internal class BriskGate {
                 RunLoop.current.run(mode: RunLoopMode.defaultRunLoopMode, before: Date(timeIntervalSinceNow: 0.1))
             }
         } else {
-            group!.wait(timeout: DispatchTime.distantFuture)
+            _ = group!.wait(timeout: DispatchTime.distantFuture)
         }
     }
     
