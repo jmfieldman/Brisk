@@ -122,7 +122,6 @@ private var queueLock:   NSLock                     = NSLock()
     
     let timer = DispatchSource.makeTimerSource(flags: DispatchSource.TimerFlags(rawValue: UInt(0)), queue: onQueue)
     timer.setEventHandler {
-        timer.cancel(); // one shot timer
         block()
     }
     
