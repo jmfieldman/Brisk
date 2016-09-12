@@ -75,8 +75,15 @@ public extension DispatchQueue {
                                          execute block: @escaping () -> Void) -> DispatchSourceTimer {
     
         let timer = DispatchSource.makeTimerSource(flags: [], queue: self)
-        timer.setEventHandler(qos: qos, flags: flags, handler: block)
+        timer.setEventHandler(qos: qos, flags: flags) {
+            timer.setEventHandler(handler: nil)
+            block()
+        }
     
+        timer.setCancelHandler { [weak timer] in
+            timer?.setEventHandler(handler: nil)
+        }
+        
         if let leeway = leeway {
             timer.scheduleOneshot(deadline: DispatchTime.now() + seconds, leeway: leeway.asDispatchTimeInterval())
         } else {
@@ -102,7 +109,14 @@ public extension DispatchQueue {
                                           execute item: DispatchWorkItem) -> DispatchSourceTimer {
         
         let timer = DispatchSource.makeTimerSource(flags: [], queue: self)
-        timer.setEventHandler(handler: item)
+        timer.setEventHandler {
+            timer.setEventHandler(handler: nil)
+            item.perform()
+        }
+        
+        timer.setCancelHandler { [weak timer] in
+            timer?.setEventHandler(handler: nil)
+        }
         
         if let leeway = leeway {
             timer.scheduleOneshot(deadline: DispatchTime.now() + seconds, leeway: leeway.asDispatchTimeInterval())
@@ -134,7 +148,14 @@ public extension DispatchQueue {
                                    execute block: @escaping () -> Void) -> DispatchSourceTimer {
         
         let timer = DispatchSource.makeTimerSource(flags: [], queue: self)
-        timer.setEventHandler(qos: qos, flags: flags, handler: block)
+        timer.setEventHandler(qos: qos, flags: flags) {
+            timer.setEventHandler(handler: nil)
+            block()
+        }
+        
+        timer.setCancelHandler { [weak timer] in
+            timer?.setEventHandler(handler: nil)
+        }
         
         let timeInterval = max(date.timeIntervalSinceNow, 0)
         
@@ -164,7 +185,14 @@ public extension DispatchQueue {
                                     execute item: DispatchWorkItem) -> DispatchSourceTimer {
         
         let timer = DispatchSource.makeTimerSource(flags: [], queue: self)
-        timer.setEventHandler(handler: item)
+        timer.setEventHandler {
+            timer.setEventHandler(handler: nil)
+            item.perform()
+        }
+        
+        timer.setCancelHandler { [weak timer] in
+            timer?.setEventHandler(handler: nil)
+        }
         
         let deadline = DispatchWallTime.now() + max(date.timeIntervalSinceNow, 0)
         
@@ -205,7 +233,14 @@ public extension DispatchQueue {
                                           execute block: @escaping () -> Void) -> DispatchSourceTimer {
         
         let timer = DispatchSource.makeTimerSource(flags: [], queue: self)
-        timer.setEventHandler(qos: qos, flags: flags, handler: block)
+        timer.setEventHandler(qos: qos, flags: flags) {
+            _ = timer.isCancelled
+            block()
+        }
+        
+        timer.setCancelHandler { [weak timer] in
+            timer?.setEventHandler(handler: nil)
+        }
         
         guard startingIn == nil || startingAt == nil else {
             Brisk.brisk_raise("It is considered a fatal error to pass both startingIn and startingAt")
@@ -266,6 +301,10 @@ public extension DispatchQueue {
             block(timer)
         }
         
+        timer.setCancelHandler { [weak timer] in
+            timer?.setEventHandler(handler: nil)
+        }
+        
         guard startingIn == nil || startingAt == nil else {
             Brisk.brisk_raise("It is considered a fatal error to pass both startingIn and startingAt")
         }
@@ -317,7 +356,14 @@ public extension DispatchQueue {
                                            execute item: DispatchWorkItem) -> DispatchSourceTimer {
         
         let timer = DispatchSource.makeTimerSource(flags: [], queue: self)
-        timer.setEventHandler(handler: item)
+        timer.setEventHandler {
+            _ = timer.isCancelled
+            item.perform()
+        }
+        
+        timer.setCancelHandler { [weak timer] in
+            timer?.setEventHandler(handler: nil)
+        }
         
         guard startingIn == nil || startingAt == nil else {
             Brisk.brisk_raise("It is considered a fatal error to pass both startingIn and startingAt")
