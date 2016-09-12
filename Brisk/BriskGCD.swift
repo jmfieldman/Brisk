@@ -298,9 +298,7 @@ public func dispatch_each<T>(elements: [T],
                                 queue: dispatch_queue_t,
                                 block: (T) -> ()) {
     
-    dispatch_apply(elements.count, queue) { i in
-        block(elements[i])
-    }
+    elements.forEach { item in dispatch_async(queue) { block(item) } }    
 }
 
 

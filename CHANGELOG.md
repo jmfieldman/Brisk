@@ -1,5 +1,9 @@
 # Brisk Changelog
 
+## 2.3.2 -- 9/11/16
+
+* Fixed queue usage in dispatch_each
+
 ## 2.3.1 -- 9/11/16
 
 * First release for Swift 2.3
