@@ -26,15 +26,16 @@
 import XCTest
 @testable import Brisk
 
-private let mainQueueKey = UnsafeMutablePointer<Void>.alloc(1)
-private let mainQueueValue = UnsafeMutablePointer<Void>.alloc(1)
+
+private let mainQueueKey        = DispatchSpecificKey<Int>()
+private let mainQueueValue: Int = 31337
 
 private func onMainQueue() -> Bool {
-    return dispatch_get_specific(mainQueueKey) == mainQueueValue
+    return DispatchQueue.getSpecific(key: mainQueueKey) == mainQueueValue
 }
 
 private func onMainThread() -> Bool {
-    return NSThread.currentThread().isMainThread
+    return Thread.current.isMainThread
 }
 
 private func onMainEverything() -> Bool {
@@ -49,12 +50,8 @@ class BriskTests: XCTestCase {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
         
-        dispatch_queue_set_specific(
-            dispatch_get_main_queue(),
-            mainQueueKey,
-            mainQueueValue,
-            nil
-        )
+        DispatchQueue.main.setSpecific(key: /*Migrator FIXME: Use a variable of type DispatchSpecificKey*/ mainQueueKey,
+            value: mainQueueValue)
     }
     
     override func tearDown() {
@@ -63,16 +60,16 @@ class BriskTests: XCTestCase {
     }
     
     
-    // MARK: - Basic dispatch stuff
+    // MARK: - Swift 2.x dispatch stuff
     
-    func testBasicDispatchMain() {
+    func testBasicSwift2xDispatchMain() {
         let spin = MainSpin()
         var qPassed = false
         
         spin.start()
         dispatch_main_async {
-            spin.done()
             qPassed = onMainEverything()
+            spin.done()
         }
         spin.wait()
         
@@ -80,14 +77,14 @@ class BriskTests: XCTestCase {
     }
     
     
-    func testBasicDispatchAsync() {
+    func testBasicSwift2xDispatchAsync() {
         let spin = AsyncSpin()
         var qPassed = false
         
         spin.start()
         dispatch_bg_async {
-            spin.done()
             qPassed = !onMainQueue()
+            spin.done()
         }
         spin.wait()
         
@@ -95,7 +92,7 @@ class BriskTests: XCTestCase {
     }
     
     
-    func testBasicDispatchMainAfter() {
+    func testBasicSwift2xDispatchMainAfter() {
         
         let spin = MainSpin()
         let time1: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
@@ -105,8 +102,8 @@ class BriskTests: XCTestCase {
         spin.start()
         dispatch_main_after(0.5) {
             time2 = CFAbsoluteTimeGetCurrent()
-            spin.done()
             qPassed = onMainEverything()
+            spin.done()
         }
         spin.wait()
     
@@ -114,7 +111,7 @@ class BriskTests: XCTestCase {
         XCTAssertTrue(qPassed, "on incorrect queue")
     }
     
-    func testBasicDispatchAsyncAfter() {
+    func testBasicSwift2xDispatchAsyncAfter() {
         
         let spin = AsyncSpin()
         let time1: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
@@ -124,8 +121,8 @@ class BriskTests: XCTestCase {
         spin.start()
         dispatch_after(0.5, backgroundQueue) {
             time2 = CFAbsoluteTimeGetCurrent()
-            spin.done()
             qPassed = !onMainQueue()
+            spin.done()
         }
         spin.wait()
         
@@ -134,7 +131,7 @@ class BriskTests: XCTestCase {
     }
     
     
-    func testBasicDispatchMainOnce() {
+    func testBasicSwift2xDispatchMainOnce() {
         
         let spin = MainSpin()
         let time1: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
@@ -163,7 +160,7 @@ class BriskTests: XCTestCase {
     }
     
     
-    func testBasicDispatchAsyncOnce() {
+    func testBasicSwift2xDispatchAsyncOnce() {
         
         let spin = AsyncSpin()
         let time1: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
@@ -192,7 +189,7 @@ class BriskTests: XCTestCase {
     }
     
     
-    func testBasicDispatchEveryMain() {
+    func testBasicSwift2xDispatchEveryMain() {
         
         let spin = MainSpin()
         var count = 0
@@ -204,7 +201,7 @@ class BriskTests: XCTestCase {
             if !onMainEverything() { qPassed = false }
             if count == 10 {
                 spin.done()
-                dispatch_source_cancel(t)
+                t.cancel()
             }
         }
         spin.wait()
@@ -213,7 +210,7 @@ class BriskTests: XCTestCase {
         XCTAssertTrue(qPassed, "on incorrect queue")
     }
     
-    func testBasicDispatchEveryMainExact() {
+    func testBasicSwift2xDispatchEveryMainExact() {
         
         let spin = MainSpin()
         var count = 0
@@ -225,7 +222,7 @@ class BriskTests: XCTestCase {
             if !onMainEverything() { qPassed = false }
             if count == 10 {
                 spin.done()
-                dispatch_source_cancel(t)
+                t.cancel()
             }
         }
         spin.wait()
@@ -234,7 +231,7 @@ class BriskTests: XCTestCase {
         XCTAssertTrue(qPassed, "on incorrect queue")
     }
     
-    func testBasicDispatchEveryAsync() {
+    func testBasicSwift2xDispatchEveryAsync() {
         
         let spin = AsyncSpin()
         var count = 0
@@ -246,7 +243,7 @@ class BriskTests: XCTestCase {
             if onMainQueue() { qPassed = false }
             if count == 10 {
                 spin.done()
-                dispatch_source_cancel(t)
+                t.cancel()
             }
         }
         spin.wait()
@@ -255,7 +252,8 @@ class BriskTests: XCTestCase {
         XCTAssertTrue(qPassed, "on incorrect queue")
     }
     
-    func testBasicDispatchEveryAsyncExact() {
+    
+    func testBasicSwift2xDispatchEveryAsyncExact() {
         
         let spin = AsyncSpin()
         var count = 0
@@ -267,7 +265,7 @@ class BriskTests: XCTestCase {
             if onMainQueue() { qPassed = false }
             if count == 10 {
                 spin.done()
-                dispatch_source_cancel(t)
+                t.cancel()
             }
         }
         spin.wait()
@@ -277,6 +275,193 @@ class BriskTests: XCTestCase {
     }
  
 	
+    // MARK: - Swift 3.x dispatch stuff
+    
+    
+    func testBasicSwift3xDispatchMainAfter() {
+        
+        let spin = MainSpin()
+        let time1: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+        var time2: CFAbsoluteTime = 0
+        var qPassed = false
+        
+        spin.start()
+        DispatchQueue.main.async(after: 0.5) {
+            time2 = CFAbsoluteTimeGetCurrent()
+            qPassed = onMainEverything()
+            spin.done()
+        }
+        spin.wait()
+        
+        XCTAssertGreaterThan(time2 - time1, 0.25, "diff must be greater than 0.25")
+        XCTAssertTrue(qPassed, "on incorrect queue")
+    }
+    
+    func testBasicSwift3xDispatchAsyncAfter() {
+        
+        let spin = AsyncSpin()
+        let time1: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+        var time2: CFAbsoluteTime = 0
+        var qPassed = false
+        
+        spin.start()
+        backgroundQueue.async(after: 0.5) {
+            time2 = CFAbsoluteTimeGetCurrent()
+            qPassed = !onMainQueue()
+            spin.done()
+        }
+        spin.wait()
+        
+        XCTAssertGreaterThan(time2 - time1, 0.25, "diff must be greater than 0.5")
+        XCTAssertTrue(qPassed, "on incorrect queue")
+    }
+    
+    
+    func testBasicSwift3xDispatchMainOnce() {
+        
+        let spin = MainSpin()
+        let time1: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+        var time2: CFAbsoluteTime = 0
+        var qPassed = false
+        var count = 0
+        
+        spin.start()
+        let block = {
+            time2 = CFAbsoluteTimeGetCurrent()
+            count += 1
+            qPassed = onMainEverything()
+            spin.done()
+        }
+        for _ in 0 ..< 10 {
+            DispatchQueue.main.once(operationId: "testop2", after: 0.5) {
+                block()
+            }
+        }
+        spin.wait()
+        
+        XCTAssertEqual(count, 1, "counted more than once")
+        XCTAssertGreaterThan(time2 - time1, 0.25, "diff must be greater than 0.5")
+        XCTAssertTrue(qPassed, "on incorrect queue")
+        
+    }
+    
+    
+    func testBasicSwift3xDispatchAsyncOnce() {
+        
+        let spin = AsyncSpin()
+        let time1: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+        var time2: CFAbsoluteTime = 0
+        var qPassed = false
+        var count = 0
+        
+        spin.start()
+        let block = {
+            time2 = CFAbsoluteTimeGetCurrent()
+            count += 1
+            qPassed = !onMainQueue()
+            spin.done()
+        }
+        for _ in 0 ..< 10 {
+            backgroundQueue.once(operationId: "testop", after: 0.5) {
+                block()
+            }
+        }
+        spin.wait()
+        
+        XCTAssertEqual(count, 1, "counted more than once")
+        XCTAssertGreaterThan(time2 - time1, 0.25, "diff must be greater than 0.5")
+        XCTAssertTrue(qPassed, "on incorrect queue")
+        
+    }
+    
+    
+    func testBasicSwift3xDispatchEveryMain() {
+        
+        let spin = MainSpin()
+        var count = 0
+        var qPassed = true
+        
+        spin.start()
+        DispatchQueue.main.async(every: 0.1) { (t: DispatchSourceTimer) in
+            count += 1
+            if !onMainEverything() { qPassed = false }
+            if count == 10 {
+                spin.done()
+                //t.cancel()
+            }
+        }
+        spin.wait()
+        
+        XCTAssertEqual(count, 10, "counted incorrect times")
+        XCTAssertTrue(qPassed, "on incorrect queue")
+    }
+    
+    func testBasicSwift3xDispatchEveryMainExact() {
+        
+        let spin = MainSpin()
+        var count = 0
+        var qPassed = true
+        
+        spin.start()
+        DispatchQueue.main.async(every: 0.1, leeway: 0) { (t: DispatchSourceTimer) in
+            count += 1
+            if !onMainEverything() { qPassed = false }
+            if count == 10 {
+                spin.done()
+                t.cancel()
+            }
+        }
+        spin.wait()
+        
+        XCTAssertEqual(count, 10, "counted incorrect times")
+        XCTAssertTrue(qPassed, "on incorrect queue")
+    }
+    
+    func testBasicSwift3xDispatchEveryAsync() {
+        
+        let spin = AsyncSpin()
+        var count = 0
+        var qPassed = true
+        
+        spin.start()
+        backgroundQueue.async(every: 0.1) { (t: DispatchSourceTimer) in
+            count += 1
+            if onMainQueue() { qPassed = false }
+            if count == 10 {
+                spin.done()
+                t.cancel()
+            }
+        }
+        spin.wait()
+        
+        XCTAssertEqual(count, 10, "counted incorrect times")
+        XCTAssertTrue(qPassed, "on incorrect queue")
+    }
+    
+    
+    func testBasicSwift3xDispatchEveryAsyncExact() {
+        
+        let spin = AsyncSpin()
+        var count = 0
+        var qPassed = true
+        
+        spin.start()
+        backgroundQueue.async(every: 0.1, leeway: 0) { (t: DispatchSourceTimer) in
+            count += 1
+            if onMainQueue() { qPassed = false }
+            if count == 10 {
+                spin.done()
+                t.cancel()
+            }
+        }
+        spin.wait()
+        
+        XCTAssertEqual(count, 10, "counted incorrect times")
+        XCTAssertTrue(qPassed, "on incorrect queue")
+    }
+
+    
+    
 	// MARK: - Async To Sync
 	
     
@@ -286,7 +471,7 @@ class BriskTests: XCTestCase {
 		
 		var res: Int = 0
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			res = <<~{ self.asyncTest_CallsOnMainReturns4($0) }
 			spin.done()
 		}
@@ -303,7 +488,7 @@ class BriskTests: XCTestCase {
 		
 		var res: Int = 0
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			res = <<+{ self.asyncTest_CallsOnMainReturns4($0) }
 			spin.done()
 		}
@@ -319,7 +504,7 @@ class BriskTests: XCTestCase {
 		
 		var res: Int = 0
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			res = <<~{ self.asyncTest_CallsOnMainReturnsI(3, handler: $0) }
 			spin.done()
 		}
@@ -336,7 +521,7 @@ class BriskTests: XCTestCase {
 		var res: Int = 0
 		var str: String = ""
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			(res, str) = <<~{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
 			spin.done()
 		}
@@ -354,7 +539,7 @@ class BriskTests: XCTestCase {
 		var res: Int = 0
 		var str: String = ""
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			(res, str) = <<-{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
 			spin.done()
 		}
@@ -373,9 +558,9 @@ class BriskTests: XCTestCase {
 		var res: Int = 0
 		var str: String = ""
 		
-		let myQueue = dispatch_queue_create("test", nil)
+		let myQueue = DispatchQueue(label: "test", attributes: [])
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			(res, str) = <<~myQueue ~~~ { self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
 			spin.done()
 		}
@@ -417,7 +602,7 @@ class BriskTests: XCTestCase {
         var r: Int = 0
         var inMain = false
         
-        syncTest_Return4+>>() +>> { inMain = NSThread.currentThread().isMainThread; r = $0; spin.done() }
+        syncTest_Return4+>>() +>> { inMain = Thread.current.isMainThread; r = $0; spin.done() }
         spin.wait()
         
         XCTAssertEqual(r, 4, "incorrect response int")
@@ -430,7 +615,7 @@ class BriskTests: XCTestCase {
         var r: Int = 0
         var inMain = false
         
-        syncTest_Return4 +>> () +>> { inMain = NSThread.currentThread().isMainThread; r = $0; spin.done() }
+        syncTest_Return4 +>> () +>> { inMain = Thread.current.isMainThread; r = $0; spin.done() }
         spin.wait()
         
         XCTAssertEqual(r, 4, "incorrect response int")
@@ -443,7 +628,7 @@ class BriskTests: XCTestCase {
         var r: Int = 0
         var inMain = false
         
-        syncTest_ReturnsI+>>.async(4) +>> { inMain = NSThread.currentThread().isMainThread; r = $0; spin.done() }
+        syncTest_ReturnsI+>>.async(4) +>> { inMain = Thread.current.isMainThread; r = $0; spin.done() }
         spin.wait()
         
         XCTAssertEqual(r, 4, "incorrect response int")
@@ -456,7 +641,7 @@ class BriskTests: XCTestCase {
         var r: Int = 0
         var inMain = false
         
-        syncTest_ReturnsI +>> (4) +>> { inMain = NSThread.currentThread().isMainThread; r = $0; spin.done() }
+        syncTest_ReturnsI +>> (4) +>> { inMain = Thread.current.isMainThread; r = $0; spin.done() }
         spin.wait()
         
         XCTAssertEqual(r, 4, "incorrect response int")
@@ -469,7 +654,7 @@ class BriskTests: XCTestCase {
         var r: Int = 0
         var inMain = false
         
-        syncTest_ReturnsI ~>> (4) +>> { inMain = NSThread.currentThread().isMainThread; r = $0; spin.done() }
+        syncTest_ReturnsI ~>> (4) +>> { inMain = Thread.current.isMainThread; r = $0; spin.done() }
         spin.wait()
         
         XCTAssertEqual(r, 4, "incorrect response int")
@@ -498,7 +683,7 @@ class BriskTests: XCTestCase {
         var s: String = ""
         var inMain = false
         
-        syncTest_ReturnsIforBoth ~>> (4) ~>> dispatch_get_main_queue() ~>> { inMain = onMainQueue(); (r, s) = $0; spin.done() }
+        syncTest_ReturnsIforBoth ~>> (4) ~>> DispatchQueue.main ~>> { inMain = onMainQueue(); (r, s) = $0; spin.done() }
         spin.wait()
         
         XCTAssertEqual(r, 4, "incorrect response int")
@@ -513,7 +698,7 @@ class BriskTests: XCTestCase {
         var s: String = ""
         var inMain = false
         
-        syncTest_ReturnsIforBoth ~>> (4) ~>> dispatch_queue_create("", nil) ~>> { inMain = onMainQueue(); (r, s) = $0; spin.done() }
+        syncTest_ReturnsIforBoth ~>> (4) ~>> DispatchQueue(label: "", attributes: []) ~>> { inMain = onMainQueue(); (r, s) = $0; spin.done() }
         spin.wait()
         
         XCTAssertEqual(r, 4, "incorrect response int")
@@ -591,7 +776,7 @@ class BriskTests: XCTestCase {
         syncTest_ReturnsI~>>(4)
         syncTest_ReturnsI~>>(4) +>> { i in }
         
-        let q = dispatch_queue_create("dkjfd", nil)
+        let q = DispatchQueue(label: "dkjfd", attributes: [])
         
         syncTest_ReturnsI +>> (4) ~>> q ~>> { i in }
         syncTest_ReturnsI +>> (4) ~>> q ~>> { i in }
@@ -605,25 +790,25 @@ class BriskTests: XCTestCase {
         let _ = s
     }
     
-    func makeSureThisCompiles(p: Int, completionHandler: ((i: Int) -> Int)?) {
+    func makeSureThisCompiles(_ p: Int, completionHandler: ((_ i: Int) -> Int)?) {
         completionHandler ?+>> (3) +>> { i in }
-        completionHandler?+>>.async(3)
+        completionHandler?+>>.async(3) +>> { i in }
         let _: Int? = completionHandler?~>>.sync(3)
     }
     
 	
 	// MARK: - Async Functions to Test With
 	
-	func asyncTest_CallsOnMainReturns4(handler: Int -> Void) {
+	func asyncTest_CallsOnMainReturns4(_ handler: @escaping (Int) -> Void) {
 		dispatch_main_async { handler(4) }
 	}
 	
-	func asyncTest_CallsOnMainReturnsI(i: Int, handler: Int -> Void) {
+	func asyncTest_CallsOnMainReturnsI(_ i: Int, handler: @escaping (Int) -> Void) {
 		dispatch_main_async { handler(i) }
 	}
 	
-	func asyncTest_CallsOnMainReturnsIforBoth(i: Int, handler: (i: Int, s: String) -> Void) {
-		dispatch_main_async { handler(i: i, s: "\(i)") }
+	func asyncTest_CallsOnMainReturnsIforBoth(_ i: Int, handler: @escaping (_ i: Int, _ s: String) -> Void) {
+		dispatch_main_async { handler(i, "\(i)") }
 	}
 	
 	// MARK: - Sync Functions to Test With
@@ -632,7 +817,7 @@ class BriskTests: XCTestCase {
         
     }
     
-    func syncTest_ReturnsVoidParam(i: Int) {
+    func syncTest_ReturnsVoidParam(_ i: Int) {
         
     }
     
@@ -640,11 +825,11 @@ class BriskTests: XCTestCase {
 		return 4
 	}
 	
-	func syncTest_ReturnsI(i: Int) -> Int {
+	func syncTest_ReturnsI(_ i: Int) -> Int {
 		return i
 	}
 	
-	func syncTest_ReturnsIforBoth(i: Int) -> (i: Int, s: String) {
+	func syncTest_ReturnsIforBoth(_ i: Int) -> (i: Int, s: String) {
 		return (i: i, s: "\(i)")
 	}
 	

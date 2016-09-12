@@ -45,25 +45,25 @@ internal class MainSpin : Spin {
     
     func wait() {
         while !finished {
-            NSRunLoop.currentRunLoop().runMode(NSDefaultRunLoopMode, beforeDate: NSDate(timeIntervalSinceNow: 0.1))
+            RunLoop.current.run(mode: RunLoopMode.defaultRunLoopMode, before: Date(timeIntervalSinceNow: 0.1))
         }
     }
 }
 
 internal class AsyncSpin : Spin {
-    let group = dispatch_group_create()
+    let group = DispatchGroup()
     
     
     func start() {
-        dispatch_group_enter(group)
+        group.enter()
     }
     
     func done() {
-        dispatch_group_leave(group)
+        group.leave()
     }
     
     func wait() {
-        dispatch_group_wait(group, DISPATCH_TIME_FOREVER)
+        _ = group.wait(timeout: DispatchTime.distantFuture)
     }
     
 }

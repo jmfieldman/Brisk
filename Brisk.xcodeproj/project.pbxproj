@@ -12,11 +12,12 @@
 		356AFC631D5E618700D18479 /* Brisk.h in Headers */ = {isa = PBXBuildFile; fileRef = 356AFC621D5E618700D18479 /* Brisk.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		356AFC6A1D5E618700D18479 /* Brisk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 356AFC5F1D5E618700D18479 /* Brisk.framework */; };
 		356AFC6F1D5E618700D18479 /* BriskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC6E1D5E618700D18479 /* BriskTests.swift */; };
-		356AFC7A1D5E61BE00D18479 /* BriskGCD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC791D5E61BE00D18479 /* BriskGCD.swift */; };
 		356AFC7C1D5E623E00D18479 /* BriskLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC7B1D5E623E00D18479 /* BriskLock.swift */; };
 		356AFC7E1D5E63C900D18479 /* BriskSync2Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC7D1D5E63C900D18479 /* BriskSync2Async.swift */; };
 		356AFC801D5E63D100D18479 /* BriskAsync2Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC7F1D5E63D100D18479 /* BriskAsync2Sync.swift */; };
 		356AFC821D5E8CAC00D18479 /* Spin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356AFC811D5E8CAC00D18479 /* Spin.swift */; };
+		3585ABB41D8624E10063299C /* BriskGCD_Swift2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585ABB31D8624E10063299C /* BriskGCD_Swift2.swift */; };
+		3585ABB61D86265E0063299C /* BriskDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585ABB51D86265E0063299C /* BriskDispatch.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,12 +44,14 @@
 		356AFC691D5E618700D18479 /* BriskTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BriskTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		356AFC6E1D5E618700D18479 /* BriskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BriskTests.swift; sourceTree = "<group>"; };
 		356AFC701D5E618700D18479 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		356AFC791D5E61BE00D18479 /* BriskGCD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskGCD.swift; sourceTree = "<group>"; };
 		356AFC7B1D5E623E00D18479 /* BriskLock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskLock.swift; sourceTree = "<group>"; };
 		356AFC7D1D5E63C900D18479 /* BriskSync2Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskSync2Async.swift; sourceTree = "<group>"; };
 		356AFC7F1D5E63D100D18479 /* BriskAsync2Sync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskAsync2Sync.swift; sourceTree = "<group>"; };
 		356AFC811D5E8CAC00D18479 /* Spin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spin.swift; sourceTree = "<group>"; };
 		3585AB7C1D845A550063299C /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = SOURCE_ROOT; };
+		3585ABB01D85FE8F0063299C /* README_SWIFT2.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README_SWIFT2.md; sourceTree = SOURCE_ROOT; };
+		3585ABB31D8624E10063299C /* BriskGCD_Swift2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskGCD_Swift2.swift; sourceTree = "<group>"; };
+		3585ABB51D86265E0063299C /* BriskDispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BriskDispatch.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,18 +97,20 @@
 			children = (
 				3585AB7C1D845A550063299C /* .travis.yml */,
 				35057D7E1D6132A8004BBF6D /* README.md */,
+				3585ABB01D85FE8F0063299C /* README_SWIFT2.md */,
 				35057D7A1D60EFEE004BBF6D /* CHANGELOG.md */,
 				35057D7B1D60EFEE004BBF6D /* CONTRIBUTORS.md */,
 				35057D781D60EE81004BBF6D /* Brisk.podspec */,
 				35057D761D60EE0B004BBF6D /* LICENSE */,
 				356AFC621D5E618700D18479 /* Brisk.h */,
 				356AFC641D5E618700D18479 /* Info.plist */,
-				356AFC791D5E61BE00D18479 /* BriskGCD.swift */,
 				356AFC7B1D5E623E00D18479 /* BriskLock.swift */,
 				356AFC7D1D5E63C900D18479 /* BriskSync2Async.swift */,
 				356AFC7F1D5E63D100D18479 /* BriskAsync2Sync.swift */,
+				3585ABB51D86265E0063299C /* BriskDispatch.swift */,
 				35057D711D60B930004BBF6D /* BriskRaise.swift */,
 				35057D731D60BCF9004BBF6D /* BriskGate.swift */,
+				3585ABB21D8624E10063299C /* Swift2 */,
 			);
 			path = Brisk;
 			sourceTree = "<group>";
@@ -118,6 +123,14 @@
 				356AFC701D5E618700D18479 /* Info.plist */,
 			);
 			path = BriskTests;
+			sourceTree = "<group>";
+		};
+		3585ABB21D8624E10063299C /* Swift2 */ = {
+			isa = PBXGroup;
+			children = (
+				3585ABB31D8624E10063299C /* BriskGCD_Swift2.swift */,
+			);
+			path = Swift2;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -233,9 +246,10 @@
 				356AFC801D5E63D100D18479 /* BriskAsync2Sync.swift in Sources */,
 				35057D721D60B930004BBF6D /* BriskRaise.swift in Sources */,
 				35057D741D60BCF9004BBF6D /* BriskGate.swift in Sources */,
+				3585ABB61D86265E0063299C /* BriskDispatch.swift in Sources */,
+				3585ABB41D8624E10063299C /* BriskGCD_Swift2.swift in Sources */,
 				356AFC7E1D5E63C900D18479 /* BriskSync2Async.swift in Sources */,
 				356AFC7C1D5E623E00D18479 /* BriskLock.swift in Sources */,
-				356AFC7A1D5E61BE00D18479 /* BriskGCD.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,7 +318,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -349,7 +363,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -373,7 +387,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -392,7 +406,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.fieldman.Brisk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -403,7 +417,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.fieldman.BriskTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -414,7 +428,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.fieldman.BriskTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
