@@ -305,7 +305,7 @@ class BriskTests: XCTestCase {
         var qPassed = false
         
         spin.start()
-        dispatch_after(0.5, backgroundQueue) {
+        backgroundQueue.async(after: 0.5) {
             time2 = CFAbsoluteTimeGetCurrent()
             qPassed = !onMainQueue()
             spin.done()
@@ -333,7 +333,7 @@ class BriskTests: XCTestCase {
             spin.done()
         }
         for _ in 0 ..< 10 {
-            dispatch_main_once_after(0.5, operationId: "testop2") {
+            DispatchQueue.main.once(operationId: "testop2", after: 0.5) {
                 block()
             }
         }
@@ -362,7 +362,7 @@ class BriskTests: XCTestCase {
             spin.done()
         }
         for _ in 0 ..< 10 {
-            dispatch_once_after(0.5, operationId: "testop", onQueue: backgroundQueue) {
+            backgroundQueue.once(operationId: "testop", after: 0.5) {
                 block()
             }
         }
@@ -382,12 +382,12 @@ class BriskTests: XCTestCase {
         var qPassed = true
         
         spin.start()
-        dispatch_main_every(0.1) { t in
+        DispatchQueue.main.async(every: 0.1) { (t: DispatchSourceTimer) in
             count += 1
             if !onMainEverything() { qPassed = false }
             if count == 10 {
                 spin.done()
-                t.cancel()
+                //t.cancel()
             }
         }
         spin.wait()
@@ -403,7 +403,7 @@ class BriskTests: XCTestCase {
         var qPassed = true
         
         spin.start()
-        dispatch_main_every_exact(0.1) { t in
+        DispatchQueue.main.async(every: 0.1, leeway: 0) { (t: DispatchSourceTimer) in
             count += 1
             if !onMainEverything() { qPassed = false }
             if count == 10 {
@@ -424,7 +424,7 @@ class BriskTests: XCTestCase {
         var qPassed = true
         
         spin.start()
-        dispatch_every(0.1, backgroundQueue) { t in
+        backgroundQueue.async(every: 0.1) { (t: DispatchSourceTimer) in
             count += 1
             if onMainQueue() { qPassed = false }
             if count == 10 {
@@ -446,7 +446,7 @@ class BriskTests: XCTestCase {
         var qPassed = true
         
         spin.start()
-        dispatch_every_exact(0.1, backgroundQueue) { t in
+        backgroundQueue.async(every: 0.1, leeway: 0) { (t: DispatchSourceTimer) in
             count += 1
             if onMainQueue() { qPassed = false }
             if count == 10 {
@@ -471,7 +471,7 @@ class BriskTests: XCTestCase {
 		
 		var res: Int = 0
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			res = <<~{ self.asyncTest_CallsOnMainReturns4($0) }
 			spin.done()
 		}
@@ -488,7 +488,7 @@ class BriskTests: XCTestCase {
 		
 		var res: Int = 0
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			res = <<+{ self.asyncTest_CallsOnMainReturns4($0) }
 			spin.done()
 		}
@@ -504,7 +504,7 @@ class BriskTests: XCTestCase {
 		
 		var res: Int = 0
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			res = <<~{ self.asyncTest_CallsOnMainReturnsI(3, handler: $0) }
 			spin.done()
 		}
@@ -521,7 +521,7 @@ class BriskTests: XCTestCase {
 		var res: Int = 0
 		var str: String = ""
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			(res, str) = <<~{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
 			spin.done()
 		}
@@ -539,7 +539,7 @@ class BriskTests: XCTestCase {
 		var res: Int = 0
 		var str: String = ""
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			(res, str) = <<-{ self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
 			spin.done()
 		}
@@ -560,7 +560,7 @@ class BriskTests: XCTestCase {
 		
 		let myQueue = DispatchQueue(label: "test", attributes: [])
 		
-		dispatch_bg_async {
+		backgroundQueue.async {
 			(res, str) = <<~myQueue ~~~ { self.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
 			spin.done()
 		}
