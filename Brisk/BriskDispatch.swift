@@ -26,6 +26,11 @@
 import Foundation
 
 
+// These are defined in the main library so that they can be accessed in the unit tests
+internal let mainQueue = DispatchQueue.main
+internal let backgroundQueue = DispatchQueue.global(qos: .default)
+
+
 public protocol QuickDispatchTimeInterval {
     /// Returns the receiver as a DispatchTimeInterval
     func asDispatchTimeInterval() -> DispatchTimeInterval
@@ -468,3 +473,5 @@ public extension DispatchQueue {
         return timer
     }
 }
+
+
