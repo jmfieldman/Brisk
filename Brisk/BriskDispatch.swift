@@ -51,6 +51,10 @@ extension Int: QuickDispatchTimeInterval {
 }
 
 
+// Data Structures for DispatchQueue.once
+private var operationTimerForId: [String : DispatchSourceTimer] = [:]
+private var operationTimerLock:   NSRecursiveLock               = NSRecursiveLock()
+
 
 public extension DispatchQueue {
     
@@ -184,18 +188,18 @@ public extension DispatchQueue {
     /// one interval.
     ///
     /// - parameter every:      The interval to execute the block.
-    /// - parameter leeway:     The leeway, in seconds, for the timer.  This is optional and
-    ///                         will use the default if unspecified.
     /// - parameter startingIn: The number of seconds to begin the repetition.
     /// - parameter startingAt: The date at which to start the repetition.  If the date is
     ///                         in the past it will start immediately.
+    /// - parameter leeway:     The leeway, in seconds, for the timer.  This is optional and
+    ///                         will use the default if unspecified.
     /// - parameter qos:        The qos to use for the executing block.
     /// - parameter flags:      The DispatchWorkItemFlags for the executing block.
     /// - parameter execute:    The block to run after the specified time on the receiving queue.
     @discardableResult public func async(every interval: Double,
-                                                 leeway: QuickDispatchTimeInterval? = nil,
                                              startingIn: Double? = nil,
                                              startingAt: NSDate? = nil,
+                                                 leeway: QuickDispatchTimeInterval? = nil,
                                                     qos: DispatchQoS = .default,
                                                   flags: DispatchWorkItemFlags = [],
                                           execute block: @escaping () -> Void) -> DispatchSourceTimer {
@@ -241,18 +245,18 @@ public extension DispatchQueue {
     /// You can use this parameter to cancel the repetition from inside the block.
     ///
     /// - parameter every:      The interval to execute the block.
-    /// - parameter leeway:     The leeway, in seconds, for the timer.  This is optional and
-    ///                         will use the default if unspecified.
     /// - parameter startingIn: The number of seconds to begin the repetition.
     /// - parameter startingAt: The date at which to start the repetition.  If the date is
     ///                         in the past it will start immediately.
+    /// - parameter leeway:     The leeway, in seconds, for the timer.  This is optional and
+    ///                         will use the default if unspecified.
     /// - parameter qos:        The qos to use for the executing block.
     /// - parameter flags:      The DispatchWorkItemFlags for the executing block.
     /// - parameter execute:    The block to run after the specified time on the receiving queue.
     @discardableResult public func async(every interval: Double,
-                                                 leeway: QuickDispatchTimeInterval? = nil,
                                              startingIn: Double? = nil,
                                              startingAt: NSDate? = nil,
+                                                 leeway: QuickDispatchTimeInterval? = nil,
                                                     qos: DispatchQoS = .default,
                                                   flags: DispatchWorkItemFlags = [],
                                           execute block: @escaping (_ timer: DispatchSourceTimer) -> Void) -> DispatchSourceTimer {
@@ -298,18 +302,18 @@ public extension DispatchQueue {
     /// one interval.
     ///
     /// - parameter every:      The interval to execute the block.
-    /// - parameter leeway:     The leeway, in seconds, for the timer.  This is optional and
-    ///                         will use the default if unspecified.
     /// - parameter startingIn: The number of seconds to begin the repetition.
     /// - parameter startingAt: The date at which to start the repetition.  If the date is
     ///                         in the past it will start immediately.
+    /// - parameter leeway:     The leeway, in seconds, for the timer.  This is optional and
+    ///                         will use the default if unspecified.
     /// - parameter qos:        The qos to use for the executing block.
     /// - parameter flags:      The DispatchWorkItemFlags for the executing block.
     /// - parameter execute:    The block to run after the specified time on the receiving queue.
     @discardableResult public func async(every interval: Double,
-                                                 leeway: QuickDispatchTimeInterval? = nil,
                                              startingIn: Double? = nil,
                                              startingAt: NSDate? = nil,
+                                                 leeway: QuickDispatchTimeInterval? = nil,
                                            execute item: DispatchWorkItem) -> DispatchSourceTimer {
         
         let timer = DispatchSource.makeTimerSource(flags: [], queue: self)
@@ -338,6 +342,83 @@ public extension DispatchQueue {
         }
         
         timer.resume()
+        return timer
+    }
+    
+    
+    
+    /// Dispatch a block asynchronously on the receiving queue once per operationId,
+    /// no matter how many times this request is made.  This is convenient way to
+    /// coalesce many disparate triggers into a single finalizing block (e.g. saving
+    /// a database to disk after many simultaneous async updates)
+    ///
+    /// Each time the function is called with an operationId that corresponds to a
+    /// timer that hasn't triggered, the previous timer is canceled in favor of the
+    /// new one.
+    ///
+    /// When a timer eventually triggers for an operationId, that operationId is cleared
+    /// and is no longer associated with a timer.
+    ///
+    /// It is considered a fatal error to pass both after and at parameters.
+    /// If neither after or at is specified, the operation is scheduled to run asap.
+    ///
+    /// - parameter operationId:    The ID of the operation to execute.
+    /// - parameter leeway:     The leeway, in seconds, for the timer.  This is optional and
+    ///                         will use the default if unspecified.
+    /// - parameter startingIn: The number of seconds to begin the repetition.
+    /// - parameter startingAt: The date at which to start the repetition.  If the date is
+    ///                         in the past it will start immediately.
+    /// - parameter qos:        The qos to use for the executing block.
+    /// - parameter flags:      The DispatchWorkItemFlags for the executing block.
+    /// - parameter execute:    The block to run after the specified time on the receiving queue.
+    @discardableResult public func once(operationId: String,
+                                     after interval: Double? = nil,
+                                            at date: NSDate? = nil,
+                                             leeway: QuickDispatchTimeInterval? = nil,
+                                                qos: DispatchQoS = .default,
+                                              flags: DispatchWorkItemFlags = [],
+                                      execute block: @escaping () -> Void) -> DispatchSourceTimer {
+        
+        let timer = DispatchSource.makeTimerSource(flags: [], queue: self)
+        timer.setEventHandler(qos: qos, flags: flags) {
+            operationTimerLock.lock()
+            if let curTimer = operationTimerForId[operationId], curTimer === timer {
+                operationTimerForId[operationId] = nil
+            }
+            operationTimerLock.unlock()
+            block()
+        }
+        
+        guard interval == nil || date == nil else {
+            Brisk.brisk_raise("It is considered a fatal error to pass both 'after' and 'at'")
+        }
+        
+        if let date = date {
+            let deadline = DispatchWallTime.now() + max(date.timeIntervalSinceNow, 0)
+            
+            if let leeway = leeway {
+                timer.scheduleOneshot(wallDeadline: deadline, leeway: leeway.asDispatchTimeInterval())
+            } else {
+                timer.scheduleOneshot(wallDeadline: deadline)
+            }
+        } else {
+            let deadline = DispatchTime.now() + (interval ?? 0)
+            
+            if let leeway = leeway {
+                timer.scheduleOneshot(deadline: deadline, leeway: leeway.asDispatchTimeInterval())
+            } else {
+                timer.scheduleOneshot(deadline: deadline)
+            }
+        }
+        
+        operationTimerLock.lock()
+        if let existingTimer = operationTimerForId[operationId], !existingTimer.isCancelled {
+            existingTimer.cancel()
+        }
+        operationTimerForId[operationId] = timer
+        timer.resume()
+        operationTimerLock.unlock()
+        
         return timer
     }
 }
