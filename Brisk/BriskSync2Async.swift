@@ -147,7 +147,7 @@ public class __BriskRoutingObj<I, O> {
 }
 
 
-public class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
+public final class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
     
     // Instantiate ourselves with a function
     override fileprivate init(function: @escaping (I) -> Void, defaultOpQueue: DispatchQueue? = nil) {
@@ -182,7 +182,7 @@ public class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
     }
 }
 
-public class __BriskRoutingObjNonVoid<I, O>: __BriskRoutingObj<I, O> {
+public final class __BriskRoutingObjNonVoid<I, O>: __BriskRoutingObj<I, O> {
     
     // Instantiate ourselves with a function
     override fileprivate init(function: @escaping (I) -> O, defaultOpQueue: DispatchQueue? = nil) {
