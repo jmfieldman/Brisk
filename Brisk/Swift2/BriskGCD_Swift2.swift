@@ -31,12 +31,6 @@ import Foundation
 /// The leeway granted for inexact timers.
 private let kInexactTimerLeeway = UInt64(0.01 * Double(NSEC_PER_SEC))
 
-/// The main dispatch queue
-internal let mainQueue = DispatchQueue.main
-
-/// The generic concurrent background queue
-internal let backgroundQueue = DispatchQueue.global(qos: .default)
-
 
 // MARK: - Dispatch Helpers
 
