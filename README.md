@@ -8,6 +8,11 @@ Brisk offers two distinct but complimentary functions:
 1. Provides shorthand operators for swiveling the concurrency of your functions (akin to async/await)
 2. Extends ```DispatchQueue``` with several functions that help make standard usage a bit more concise.
 
+```swift
+// Example: Making an asynchronous function be synchronous 
+let (data, response, error) = <<-{ URLSession.shared.dataTask(url, completionHandler: $0).resume() }
+```
+
 ## Versioning ##
 
 To help with Cocoapods versioning syntax, all versions of Brisk compatible with Swift 2.2 will begin with Major/Minor 2.2.  All versions comptible with Swift 2.3 will begin with Major/Minor 2.3.  All versions compatible with Swift 3.0 will begin with Major/Minor 3.0, etc.
