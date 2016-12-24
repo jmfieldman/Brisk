@@ -594,6 +594,18 @@ class BriskTests: XCTestCase {
     }
     
     
+    /*
+    func testOptionalReturn() {
+        { [weak self] in
+            // This will fatal error
+            let (res, str) = <<~{ self?.asyncTest_CallsOnMainReturnsIforBoth(3, handler: $0) }
+        
+            XCTAssertEqual(res, 3, "incorrect response int")
+            XCTAssertEqual(str, "3", "incorrect response str")
+        }()
+    }*/
+    
+    
     // MARK: - Sync To Async
     
     func testSync2Async_MainA() {
