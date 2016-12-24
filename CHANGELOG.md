@@ -1,5 +1,9 @@
 # Brisk Changelog
 
+## 3.0.2 -- 12/24/16
+
+* Added fatalerror calls when passing an optional function to the await operators (<<+) since those must guarantee to call their return function.
+
 ## 3.0.1 -- 10/13/16
 
 * Fixed podspec issue for Swift 3.0/cocoapods
