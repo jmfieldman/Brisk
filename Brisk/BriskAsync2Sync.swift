@@ -77,6 +77,12 @@ public prefix func <<-<O>(operation: (_ callbackHandler: @escaping (_ param: O) 
     return handledResponse!
 }
 
+/// This protects against optional functions being placed inside a sync-to-async block.
+public prefix func <<-<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> Void?) -> O {
+    fatalError("You cannot put an optional call inside of a brisk sync-to-async block, since it must be guaranteed to call and return.")
+}
+
+
 /// Using a generic handler for the non-noescape versions
 @inline(__always) private func processAsync2Sync<O>(_ operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> (),
                                                           queue: DispatchQueue) -> O {
@@ -113,6 +119,10 @@ public prefix func <<~<O>(operation: @escaping (_ callbackHandler: @escaping (_ 
     return processAsync2Sync(operation, queue: backgroundQueue)
 }
 
+/// This protects against optional functions being placed inside a sync-to-async block.
+public prefix func <<~<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> Void?) -> O {
+    fatalError("You cannot put an optional call inside of a brisk sync-to-async block, since it must be guaranteed to call and return.")
+}
 
 /// Executes the attached operation on the main queue
 /// and waits for it to complete.  Returns the result of the callback handler that
@@ -121,6 +131,11 @@ public prefix func <<~<O>(operation: @escaping (_ callbackHandler: @escaping (_ 
 /// - e.g.: ```let x = <<+{ func(i, callback: $0)``` }
 public prefix func <<+<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(operation, queue: mainQueue)
+}
+
+/// This protects against optional functions being placed inside a sync-to-async block.
+public prefix func <<+<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> Void?) -> O {
+    fatalError("You cannot put an optional call inside of a brisk sync-to-async block, since it must be guaranteed to call and return.")
 }
 
 
@@ -132,4 +147,10 @@ public prefix func <<+<O>(operation: @escaping (_ callbackHandler: @escaping (_ 
 public func ~~~<O>(lhs: DispatchQueue, rhs: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> ()) -> O {
     return processAsync2Sync(rhs, queue: lhs)
 }
+
+/// This protects against optional functions being placed inside a sync-to-async block.
+public func ~~~<O>(lhs: DispatchQueue, rhs: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> Void?) -> O {
+    fatalError("You cannot put an optional call inside of a brisk sync-to-async block, since it must be guaranteed to call and return.")
+}
+
 
