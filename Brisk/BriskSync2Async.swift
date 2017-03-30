@@ -63,7 +63,7 @@ public class __BriskRoutingObj<I, O> {
     // ---------- Init ------------
     
     // Instantiate ourselves with a function
-    fileprivate init(function: @escaping (I) -> O, defaultOpQueue: DispatchQueue? = nil) {
+    public init(function: @escaping (I) -> O, defaultOpQueue: DispatchQueue? = nil) {
         wrappedFunction = function
         opQueue = defaultOpQueue
     }
@@ -88,7 +88,7 @@ public class __BriskRoutingObj<I, O> {
     
     /// Returns the current routing object set to execute its
     /// function on the specified queue
-    @inline(__always) public func on(_ queue: DispatchQueue) -> __BriskRoutingObj<I, O> {
+    public func on(_ queue: DispatchQueue) -> __BriskRoutingObj<I, O> {
         self.opQueue = queue
         return self
     }
@@ -150,7 +150,7 @@ public class __BriskRoutingObj<I, O> {
 public final class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
     
     // Instantiate ourselves with a function
-    override fileprivate init(function: @escaping (I) -> Void, defaultOpQueue: DispatchQueue? = nil) {
+    override public init(function: @escaping (I) -> Void, defaultOpQueue: DispatchQueue? = nil) {
         super.init(function: function, defaultOpQueue: defaultOpQueue)
     }
     
@@ -185,7 +185,7 @@ public final class __BriskRoutingObjVoid<I>: __BriskRoutingObj<I, Void> {
 public final class __BriskRoutingObjNonVoid<I, O>: __BriskRoutingObj<I, O> {
     
     // Instantiate ourselves with a function
-    override fileprivate init(function: @escaping (I) -> O, defaultOpQueue: DispatchQueue? = nil) {
+    override public init(function: @escaping (I) -> O, defaultOpQueue: DispatchQueue? = nil) {
         super.init(function: function, defaultOpQueue: defaultOpQueue)
     }
     
@@ -226,9 +226,9 @@ postfix operator ->>
 postfix operator ~>>
 postfix operator +>>
 
-postfix operator ?->>
-postfix operator ?~>>
-postfix operator ?+>>
+//postfix operator ?->>
+//postfix operator ?~>>
+//postfix operator ?+>>
 
 
 /// The ```->>``` postfix operator generates an internal routing object that
@@ -254,18 +254,18 @@ postfix operator ?+>>
 /// would be:
 ///
 /// ```handler->>.main.async(result: nil)```
-@inline(__always) public postfix func ?->><I>(function: ((I) -> Void)?) -> __BriskRoutingObjVoid<I>? {
-    return (function == nil) ? nil : __BriskRoutingObjVoid(function: function!)
-}
+//@inline(__always) public postfix func ?->><I>(function: ((I) -> Void)?) -> __BriskRoutingObjVoid<I>? {
+//    return (function == nil) ? nil : __BriskRoutingObjVoid(function: function!)
+//}
 
 /// The ```->>``` postfix operator generates an internal routing object that
 /// requires you to specify the operation queue.  An example of this
 /// would be:
 ///
 /// ```handler->>.main.async(result: nil)```
-@inline(__always) public postfix func ?->><I, O>(function: ((I) -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
-    return (function == nil) ? nil : __BriskRoutingObjNonVoid(function: function!)
-}
+//@inline(__always) public postfix func ?->><I, O>(function: ((I) -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
+//    return (function == nil) ? nil : __BriskRoutingObjNonVoid(function: function!)
+//}
 
 
 
@@ -293,18 +293,18 @@ postfix operator ?+>>
 /// would be:
 ///
 /// ```handler~>>.async(result: nil)```
-@inline(__always) public postfix func ?~>><I>(function: ((I) -> Void)?) -> __BriskRoutingObjVoid<I>? {
-    return (function == nil) ? nil : __BriskRoutingObjVoid(function: function!, defaultOpQueue: backgroundQueue)
-}
+//@inline(__always) public postfix func ?~>><I>(function: ((I) -> Void)?) -> __BriskRoutingObjVoid<I>? {
+//    return (function == nil) ? nil : __BriskRoutingObjVoid(function: function!, defaultOpQueue: backgroundQueue)
+//}
 
 /// The ```~>>``` postfix operator generates an internal routing object that
 /// defaults to the concurrent background queue.  An example of this
 /// would be:
 ///
 /// ```handler~>>.async(result: nil)```
-@inline(__always) public postfix func ?~>><I, O>(function: ((I) -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
-    return (function == nil) ? nil : __BriskRoutingObjNonVoid(function: function!, defaultOpQueue: backgroundQueue)
-}
+//@inline(__always) public postfix func ?~>><I, O>(function: ((I) -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
+//    return (function == nil) ? nil : __BriskRoutingObjNonVoid(function: function!, defaultOpQueue: backgroundQueue)
+//}
 
 
 
@@ -329,17 +329,17 @@ postfix operator ?+>>
 /// defaults to the main queue.  An example of this would be:
 ///
 /// ```handler+>>.async(result: nil)```
-@inline(__always) public postfix func ?+>><I>(function: ((I) -> Void)?) -> __BriskRoutingObjVoid<I>? {
-    return (function == nil) ? nil : __BriskRoutingObjVoid(function: function!, defaultOpQueue: mainQueue)
-}
+//@inline(__always) public postfix func ?+>><I>(function: ((I) -> Void)?) -> __BriskRoutingObjVoid<I>? {
+//    return (function == nil) ? nil : __BriskRoutingObjVoid(function: function!, defaultOpQueue: mainQueue)
+//}
 
 /// The ```+>>``` postfix operator generates an internal routing object that
 /// defaults to the main queue.  An example of this would be:
 ///
 /// ```handler+>>.async(result: nil)```
-@inline(__always) public postfix func ?+>><I, O>(function: ((I) -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
-    return (function == nil) ? nil : __BriskRoutingObjNonVoid(function: function!, defaultOpQueue: mainQueue)
-}
+//@inline(__always) public postfix func ?+>><I, O>(function: ((I) -> O)?) -> __BriskRoutingObjNonVoid<I,O>? {
+//    return (function == nil) ? nil : __BriskRoutingObjNonVoid(function: function!, defaultOpQueue: mainQueue)
+//}
 
 
 /* -- old precendence = 140 -- */

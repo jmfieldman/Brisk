@@ -62,7 +62,7 @@ private var queueLock:   NSLock                     = NSLock()
 /// whose uniqueness is identified by a string, rather than a pre-allocated queue instance.
 /// - note: This is a more a convenience feature than a recommended practice.  It is generally
 ///         safer from a coding perspective to use a pre-instantiated queue variable.
-@inline(__always) public func dispatch_async(_ queueName: String, block: @escaping () -> ()) {
+public func dispatch_async(_ queueName: String, block: @escaping () -> ()) {
     
     if let queue: DispatchQueue = synchronized(queueLock, block: { return queueForId[queueName] }) {
         queue.async(execute: block)

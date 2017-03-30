@@ -1,5 +1,9 @@
 # Brisk Changelog
 
+## 3.1.0 -- 3/30/17
+
+* Updates for Xcode 8.3/Swift 3.1
+
 ## 3.0.2 -- 12/24/16
 
 * Added fatalerror calls when passing an optional function to the await operators (<<+) since those must guarantee to call their return function.

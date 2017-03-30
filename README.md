@@ -23,6 +23,7 @@ This means your Cocoapod inclusion can look like:
 pod 'Brisk', '~> 2.2' # Latest version compatible with Swift 2.2
 pod 'Brisk', '~> 2.3' # Latest version compatible with Swift 2.3
 pod 'Brisk', '~> 3.0' # Latest version compatible with Swift 3.0
+pod 'Brisk', '~> 3.1' # Latest version compatible with Swift 3.1
 ```
 
 > The Brisk API is different in Swift 2.x.  Please refer to ```README_SWIFT2.md```
@@ -313,6 +314,13 @@ func myTest(param: Int, completionHandler: (Int -> Int)? = nil) {
 
 }
 ```
+
+> Note that if you were using the syntax for optionals
+> ```completionHandler?~>>.main.async(param)```
+> -- Swift 3.1 does not allow ? characters at the beginning of postfix
+> operators so you can no longer explicitly choose a queue name
+> like ".main".  You can still use queues implicitly with the operator, like
+> ```completionHandler?+>>.async(param)```
 
 
 ## Swift 3.x LibDispatch Additions ##
