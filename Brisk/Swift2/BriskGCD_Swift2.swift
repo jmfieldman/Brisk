@@ -38,8 +38,7 @@ private let kInexactTimerLeeway = UInt64(0.01 * Double(NSEC_PER_SEC))
 /// Execute a block asynchronously on the main dispatch queue
 ///
 /// - parameter block: The block to execute.
-@inline(__always) public func dispatch_main_async(_ block: @escaping () -> ()) {
-    
+public func dispatch_main_async(_ block: @escaping () -> ()) {
     mainQueue.async(execute: block)
 }
 
@@ -47,8 +46,7 @@ private let kInexactTimerLeeway = UInt64(0.01 * Double(NSEC_PER_SEC))
 /// Execute a block asynchronously on the generic concurrent background queue.
 ///
 /// - parameter block: The block to execute.
-@inline(__always) public func dispatch_bg_async(_ block: @escaping () -> ()) {
-    
+public func dispatch_bg_async(_ block: @escaping () -> ()) {
     backgroundQueue.async(execute: block)
 }
 
@@ -81,7 +79,7 @@ public func dispatch_async(_ queueName: String, block: @escaping () -> ()) {
 /// from the main queue, the block is executed immediately.
 ///
 /// - parameter block: The block to execute.
-@inline(__always) public func dispatch_main_sync(_ block: () -> ())  {
+public func dispatch_main_sync(_ block: () -> ())  {
     
     if Thread.current.isMainThread {
         block()

@@ -275,7 +275,7 @@ postfix operator +>>
 /// would be:
 ///
 /// ```handler~>>.async(result: nil)```
-@inline(__always) public postfix func ~>><I>(function: @escaping (I) -> Void) -> __BriskRoutingObjVoid<I> {
+public postfix func ~>><I>(function: @escaping (I) -> Void) -> __BriskRoutingObjVoid<I> {
     return __BriskRoutingObjVoid(function: function, defaultOpQueue: backgroundQueue)
 }
 
@@ -284,7 +284,7 @@ postfix operator +>>
 /// would be:
 ///
 /// ```handler~>>.async(result: nil)```
-@inline(__always) public postfix func ~>><I, O>(function: @escaping (I) -> O) -> __BriskRoutingObjNonVoid<I,O> {
+public postfix func ~>><I, O>(function: @escaping (I) -> O) -> __BriskRoutingObjNonVoid<I,O> {
     return __BriskRoutingObjNonVoid(function: function, defaultOpQueue: backgroundQueue)
 }
 
@@ -313,7 +313,7 @@ postfix operator +>>
 /// defaults to the main queue.  An example of this would be:
 ///
 /// ```handler+>>.async(result: nil)```
-@inline(__always) public postfix func +>><I>(function: @escaping (I) -> Void) -> __BriskRoutingObjVoid<I> {
+public postfix func +>><I>(function: @escaping (I) -> Void) -> __BriskRoutingObjVoid<I> {
     return __BriskRoutingObjVoid(function: function, defaultOpQueue: mainQueue)
 }
 
@@ -321,7 +321,7 @@ postfix operator +>>
 /// defaults to the main queue.  An example of this would be:
 ///
 /// ```handler+>>.async(result: nil)```
-@inline(__always) public postfix func +>><I, O>(function: @escaping (I) -> O) -> __BriskRoutingObjNonVoid<I,O> {
+public postfix func +>><I, O>(function: @escaping (I) -> O) -> __BriskRoutingObjNonVoid<I,O> {
     return __BriskRoutingObjNonVoid(function: function, defaultOpQueue: mainQueue)
 }
 
