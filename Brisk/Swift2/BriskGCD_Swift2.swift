@@ -177,8 +177,8 @@ public func dispatch_main_sync(_ block: () -> ())  {
 ///
 /// - parameter after: The time to wait before running the block asynchronously.
 /// - parameter block: The block to execute.
-@inline(__always) public func dispatch_main_after(_ seconds: TimeInterval,
-                                                    _ block: @escaping () -> ()) {
+public func dispatch_main_after(_ seconds: TimeInterval,
+                                  _ block: @escaping () -> ()) {
     
     dispatch_after(seconds, mainQueue, block)
 }
@@ -190,8 +190,8 @@ public func dispatch_main_sync(_ block: () -> ())  {
 ///
 /// - parameter after: The time to wait before running the block asynchronously.
 /// - parameter block: The block to execute.
-@inline(__always) public func dispatch_main_after_exactly(_ seconds: TimeInterval,
-                                                            _ block: @escaping (() -> ())) {
+public func dispatch_main_after_exactly(_ seconds: TimeInterval,
+                                          _ block: @escaping (() -> ())) {
     
     dispatch_after_exactly(seconds, mainQueue, block)
 }
