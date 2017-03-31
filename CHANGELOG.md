@@ -1,5 +1,9 @@
 # Brisk Changelog
 
+## 3.1.1 -- 3/31/17
+
+* Trying to fix cocoapods internal version tagging issue
+
 ## 3.1.0 -- 3/30/17
 
 * Updates for Xcode 8.3/Swift 3.1
