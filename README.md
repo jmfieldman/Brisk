@@ -1,5 +1,9 @@
 ![Brisk](/Assets/Banner.png)
 
+> NOTE
+> 
+> Brisk is being mothballed due to general incompatibilities with modern version of Swift.  I recommend checking out ReactiveSwift, which solves many of the issues that prompted me to make Brisk in the first place.
+
 Swift support for blocks and asynchronous code is powerful, but can lead to a maze of indented logic that
 quickly becomes unreadable and error-prone.
 
