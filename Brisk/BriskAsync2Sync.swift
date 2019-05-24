@@ -56,7 +56,7 @@ infix  operator ~~~ : QueueRedirectionPrecendence
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<-{ func(i, callback: $0)``` }
-public prefix func <<-<O>(operation: (_ callbackHandler: @escaping (_ param: O) -> ()) -> ()) -> O {
+public prefix func <<-<O>(operation: (_ callbackHandler: @escaping (_ param: O) -> Void) -> Void) -> O {
     
     // Our gating mechanism
     let gate = BriskGate()
@@ -64,7 +64,7 @@ public prefix func <<-<O>(operation: (_ callbackHandler: @escaping (_ param: O) 
     // This value will eventually hold the response from the async function
     var handledResponse: O?
     
-    let theHandler: (_ p: O) -> () = { responseFromCallback in
+    let theHandler: (_ p: O) -> Void = { responseFromCallback in
         handledResponse = responseFromCallback
         gate.signal()
     }
@@ -78,13 +78,13 @@ public prefix func <<-<O>(operation: (_ callbackHandler: @escaping (_ param: O) 
 }
 
 /// This protects against optional functions being placed inside a sync-to-async block.
-public prefix func <<-<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> Void?) -> O {
+public prefix func <<-<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> Void) -> Void?) -> O {
     fatalError("You cannot put an optional call inside of a brisk sync-to-async block, since it must be guaranteed to call and return.")
 }
 
 
 /// Using a generic handler for the non-noescape versions
-@inline(__always) private func processAsync2Sync<O>(_ operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> (),
+@inline(__always) private func processAsync2Sync<O>(_ operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> Void) -> Void,
                                                           queue: DispatchQueue) -> O {
     
     // Our gating mechanism
@@ -93,7 +93,7 @@ public prefix func <<-<O>(operation: @escaping (_ callbackHandler: @escaping (_ 
     // This value will eventually hold the response from the async function
     var handledResponse: O?
     
-    let theHandler: (_ p: O) -> () = { responseFromCallback in
+    let theHandler: (_ p: O) -> Void = { responseFromCallback in
         handledResponse = responseFromCallback
         gate.signal()
     }
@@ -115,12 +115,12 @@ public prefix func <<-<O>(operation: @escaping (_ callbackHandler: @escaping (_ 
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<~{ func(i, callback: $0)``` }
-public prefix func <<~<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> ()) -> O {
+public prefix func <<~<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> Void) -> Void) -> O {
     return processAsync2Sync(operation, queue: backgroundQueue)
 }
 
 /// This protects against optional functions being placed inside a sync-to-async block.
-public prefix func <<~<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> Void?) -> O {
+public prefix func <<~<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> Void) -> Void?) -> O {
     fatalError("You cannot put an optional call inside of a brisk sync-to-async block, since it must be guaranteed to call and return.")
 }
 
@@ -129,12 +129,12 @@ public prefix func <<~<O>(operation: @escaping (_ callbackHandler: @escaping (_ 
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<+{ func(i, callback: $0)``` }
-public prefix func <<+<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> ()) -> O {
+public prefix func <<+<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> Void) -> Void) -> O {
     return processAsync2Sync(operation, queue: mainQueue)
 }
 
 /// This protects against optional functions being placed inside a sync-to-async block.
-public prefix func <<+<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> Void?) -> O {
+public prefix func <<+<O>(operation: @escaping (_ callbackHandler: @escaping (_ param: O) -> Void) -> Void?) -> O {
     fatalError("You cannot put an optional call inside of a brisk sync-to-async block, since it must be guaranteed to call and return.")
 }
 
@@ -144,12 +144,12 @@ public prefix func <<+<O>(operation: @escaping (_ callbackHandler: @escaping (_ 
 /// $0 was attached to.
 ///
 /// - e.g.: ```let x = <<~myQueue ~~~ { func(i, callback: $0)``` }
-public func ~~~<O>(lhs: DispatchQueue, rhs: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> ()) -> O {
+public func ~~~<O>(lhs: DispatchQueue, rhs: @escaping (_ callbackHandler: @escaping (_ param: O) -> Void) -> Void) -> O {
     return processAsync2Sync(rhs, queue: lhs)
 }
 
 /// This protects against optional functions being placed inside a sync-to-async block.
-public func ~~~<O>(lhs: DispatchQueue, rhs: @escaping (_ callbackHandler: @escaping (_ param: O) -> ()) -> Void?) -> O {
+public func ~~~<O>(lhs: DispatchQueue, rhs: @escaping (_ callbackHandler: @escaping (_ param: O) -> Void) -> Void?) -> O {
     fatalError("You cannot put an optional call inside of a brisk sync-to-async block, since it must be guaranteed to call and return.")
 }
 

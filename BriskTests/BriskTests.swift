@@ -761,7 +761,7 @@ class BriskTests: XCTestCase {
     func testSync2Async_MainRetE() {
         var inMain = true;
         
-        { inMain = onMainQueue() }~>>.sync()
+        { inMain = onMainQueue() }~>>.sync(())
         
         XCTAssertEqual(inMain, false, "incorrect queue")
     }
@@ -769,7 +769,7 @@ class BriskTests: XCTestCase {
     func testSync2Async_MainRetF() {
         var inMain = false;
         
-        { inMain = onMainQueue() }+>>.sync()
+        { inMain = onMainQueue() }+>>.sync(())
         
         XCTAssertEqual(inMain, true, "incorrect queue")
     }
@@ -798,7 +798,7 @@ class BriskTests: XCTestCase {
         
         var s: Int = 0;
         { s = 3 } +>> ();
-        { s = 3 }+>>.sync()
+        { s = 3 }+>>.sync(())
         let _ = s
     }
     

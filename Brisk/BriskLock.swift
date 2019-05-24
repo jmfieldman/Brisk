@@ -35,7 +35,7 @@ import Foundation
 ///
 /// - parameter lock:  The NSLocking object to use.
 /// - parameter block: The block to perform.
-@inline(__always) public func synchronized(_ lock: NSLocking, block: () -> ()) {
+@inline(__always) public func synchronized(_ lock: NSLocking, block: () -> Void) {
     lock.lock()
     block()
     lock.unlock()
@@ -73,7 +73,7 @@ private var universalLock: NSRecursiveLock = NSRecursiveLock()
 /// Perform a block synchronized on the global static spin lock.
 ///
 /// - parameter block: The block to perform.
-public func synchronized(_ block: () -> ()) {
+public func synchronized(_ block: () -> Void) {
     universalLock.lock()
     block()
     universalLock.unlock()

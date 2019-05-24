@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
     s.name         = "Brisk"
-    s.version      = "3.1.1"
+    s.version      = "4.0.0"
     s.summary      = "Concise concurrency manipulation for Swift"
 
     s.description  = <<-DESC
@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
     s.author       = { "Jason Fieldman" => "jason@fieldman.org" }
     s.social_media_url = 'http://fieldman.org'
 
-    s.ios.deployment_target = "8.0"
+    s.ios.deployment_target = "9.0"
     s.osx.deployment_target = "10.10"
     s.tvos.deployment_target = "9.0"
     s.watchos.deployment_target = "2.0"
@@ -27,11 +27,6 @@ Pod::Spec.new do |s|
 
     s.subspec 'Core' do |ss|
         ss.source_files = "Brisk/*.swift"
-    end
-
-    s.subspec 'Swift2' do |ss|
-        ss.source_files = "Brisk/Swift2/*.swift"
-        ss.dependency 'Brisk/Core'
     end
 
 end

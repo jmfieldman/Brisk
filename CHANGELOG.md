@@ -1,5 +1,9 @@
 # Brisk Changelog
 
+## 4.0.0 -- 10/28/17
+
+* Swift 4.0 support
+
 ## 3.1.1 -- 3/31/17
 
 * Trying to fix cocoapods internal version tagging issue
